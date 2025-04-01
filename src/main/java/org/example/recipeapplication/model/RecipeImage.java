@@ -6,27 +6,18 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.With;
 
-import java.sql.Timestamp;
-
 @Data
 @With
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-public class Note {
+public class RecipeImage {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne
+    private String path;
+
+    @ManyToOne
     private Recipe recipe;
-
-    @OneToOne
-    private AppUser author;
-
-    private String content;
-
-    private Timestamp dateOfCreation;
-
-    private Timestamp dateOfModification;
 }
