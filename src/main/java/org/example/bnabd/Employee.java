@@ -1,8 +1,6 @@
 package org.example.bnabd;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 
@@ -16,6 +14,9 @@ public class Employee {
     private String firstName;
     private String lastName;
     private BigDecimal salary;
+
+    @ManyToOne
+    private Department department;
 
     public Employee(){
         super();
@@ -58,5 +59,10 @@ public class Employee {
 
     public void setSalary(BigDecimal salary) {
         this.salary = salary;
+    }
+
+    @Override
+    public String toString(){
+        return "Employee [First name=" + firstName + ", last name=" + lastName + ", salary=" + salary + "]";
     }
 }
