@@ -1,10 +1,7 @@
 package org.example.recipeapplication.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.With;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -13,7 +10,7 @@ import java.util.Collection;
 import java.util.List;
 
 @Data
-@With
+@Builder
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
@@ -24,9 +21,9 @@ public class AppUser implements UserDetails {
 
     private String profilePicture;
 
-    private String name;
+    private String firstName;
 
-    private String surname;
+    private String lastName;
 
     private String email;
 
