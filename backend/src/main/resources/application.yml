@@ -1,0 +1,37 @@
+#spring.application.name=RecipeApplication
+#
+#spring.jpa.open-in-view=false
+#spring.jpa.show-sql=false
+#
+#server.port=8082
+#spring.datasource.url=jdbc:postgresql://localhost:5432/recipix
+#spring.datasource.username=postgres
+#spring.datasource.password=postgres
+#
+#spring.jpa.hibernate.ddl-auto=create-drop
+
+spring:
+  application:
+    name: RecipeApplication
+
+  jpa:
+    open-in-view: false
+    show-sql: true
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        format_sql: true
+    database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/recipix
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+
+server:
+  port: 8082
+
