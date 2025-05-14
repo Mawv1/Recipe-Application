@@ -24,7 +24,7 @@ public class SecurityConfig {
         return http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/public/**", "/login", "/register").permitAll() // <-- dostosuj ścieżki
+                        .requestMatchers("/api/v1/auth/**").permitAll()  // Wszystkie endpointy są permitowane
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
