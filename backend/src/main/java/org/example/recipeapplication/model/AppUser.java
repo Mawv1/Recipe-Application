@@ -15,6 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AppUser implements UserDetails {
+    // sprawdzac czy taki uzytwkownik jest w bazie, przy uzyciu dto
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

@@ -35,3 +35,8 @@ spring:
 server:
   port: 8080
 
+jwt:
+  secret-key: xq7r38zKgtluv6ouVwKb6hUQWmdiaA6UGTuYUTsSTCQMbwhvS2ykQ76SxlX0Zq5Jakpy5SyKvD9sB9rDoz4wpA==
+  expiration: 86400000
+  refresh-token:
+    expiration: 604800000

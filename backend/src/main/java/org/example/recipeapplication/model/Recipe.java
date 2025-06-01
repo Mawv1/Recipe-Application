@@ -26,7 +26,7 @@ public class Recipe {
 
     private Float rate;
 
-    private Float estimatedTimeToPrepare;
+    private String estimatedTimeToPrepare;
 
     @OneToOne
     private AppUser author;
@@ -35,12 +35,7 @@ public class Recipe {
 
     private Timestamp dateOfModification;
 
-    @ManyToMany
-    @JoinTable(
-            name = "recipe_ingredient",
-            joinColumns = @JoinColumn(name = "recipe_id"),
-            inverseJoinColumns = @JoinColumn(name = "ingredient_id")
-    )
+    @OneToMany
     private List<Ingredient> ingredients;
 
     @ManyToOne
