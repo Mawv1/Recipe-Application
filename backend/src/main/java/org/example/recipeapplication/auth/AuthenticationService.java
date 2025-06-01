@@ -18,6 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 @Service
 @RequiredArgsConstructor
@@ -31,13 +32,17 @@ public class AuthenticationService {
 
     public AuthenticationResponse register(RegisterRequest request) {
         var user = AppUser.builder()
+                .firstName(request.getFirstName())    // poprawne nazwy pól
+                .lastName(request.getLastName())      // poprawne nazwy pól
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
-                // ... inne pola ...
+                .role(request.getRole())                     // zawsze USER przy rejestracji
                 .build();
         var savedUser = appUserRepository.save(user);
-        var accessToken = jwtService.generateToken(user);
-        var refreshToken = jwtService.generateRefreshToken(user);
+        var accessToken = jwtService.generateToken(savedUser);
+        var refreshToken = jwtService.generateRefreshToken(savedUser);
+
+        saveUserToken(savedUser, accessToken, refreshToken);
 
         return AuthenticationResponse.builder()
                 .accessToken(accessToken)
@@ -57,7 +62,7 @@ public class AuthenticationService {
         var accessToken = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
         revokeAllUserTokens(user);
-        saveUserToken(user, accessToken);
+        saveUserToken(user, accessToken, refreshToken);
 
         return AuthenticationResponse.builder()
                 .accessToken(accessToken)
@@ -65,15 +70,22 @@ public class AuthenticationService {
                 .build();
     }
 
-    private void saveUserToken(AppUser user, String jwtToken) {
-        var token = Token.builder()
+    private void saveUserToken(AppUser user, String accessToken, String refreshToken) {
+        var accessTokenEntity = Token.builder()
                 .user(user)
-                .token(jwtToken)
+                .token(accessToken)
                 .tokenType(TokenType.BEARER)
                 .expired(false)
                 .revoked(false)
                 .build();
-        tokenRepository.save(token);
+        var refreshTokenEntity = Token.builder()
+                .user(user)
+                .token(refreshToken)
+                .tokenType(TokenType.REFRESH)
+                .expired(false)
+                .revoked(false)
+                .build();
+        tokenRepository.saveAll(Arrays.asList(accessTokenEntity, refreshTokenEntity));
     }
 
     private void revokeAllUserTokens(AppUser user) {
@@ -105,7 +117,7 @@ public class AuthenticationService {
             if (jwtService.isTokenValid(refreshToken, user)) {
                 var accessToken = jwtService.generateToken(user);
                 revokeAllUserTokens(user);
-                saveUserToken(user, accessToken);
+                saveUserToken(user, accessToken, refreshToken);
                 var authResponse = AuthenticationResponse.builder()
                         .accessToken(accessToken)
                         .refreshToken(refreshToken)

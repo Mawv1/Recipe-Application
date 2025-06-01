@@ -1,5 +1,6 @@
 package org.example.recipeapplication.model;
 
 public enum TokenType {
-    BEARER
+    BEARER,
+    REFRESH;
 }
