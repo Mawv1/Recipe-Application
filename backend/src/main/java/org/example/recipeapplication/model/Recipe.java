@@ -28,7 +28,8 @@ public class Recipe {
 
     private String estimatedTimeToPrepare;
 
-    @OneToOne
+    @ManyToOne
+    @JoinColumn(name = "author_id")
     private AppUser author;
 
     private Timestamp dateOfCreation;
@@ -39,10 +40,8 @@ public class Recipe {
     private List<Ingredient> ingredients;
 
     @ManyToOne
-    private RecipeCategory recipeCategory;
-
-    @ManyToOne
-    private MealCategory mealCategory;
+    @JoinColumn(name = "category_id")
+    private Category category;
 
     @OneToMany
     private List<RecipeImage> images;
