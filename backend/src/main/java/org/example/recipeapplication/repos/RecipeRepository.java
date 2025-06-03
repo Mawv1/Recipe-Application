@@ -1,21 +1,23 @@
 package org.example.recipeapplication.repos;
 
+import org.example.recipeapplication.dto.RecipeResponseDTO;
 import org.example.recipeapplication.model.Recipe;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface RecipeRepository extends JpaRepository<Recipe, Long> {
-    List<Recipe> findByAuthorId(Long authorId);
-    List<Recipe> findByCategoryId(Long categoryId);
-    List<Recipe> findByTitleContainingIgnoreCase(String title);
-    List<Recipe> findByRateGreaterThanEqual(Float minRate);
-    List<Recipe> findByAuthorIdOrderByDateOfCreationDesc(Long authorId);
+    List<Recipe> findByCategory_Id(Long categoryId);
+    List<Recipe> findByCategory_NameContaining(String categoryName);
+    List<Recipe> findByTags_NameContaining(String name);
 
-    @Query("SELECT r FROM Recipe r WHERE r.rate >= :minRate AND r.category.id = :categoryId")
-    List<Recipe> findByRateAndCategory(@Param("minRate") Float minRate, @Param("categoryId") Long categoryId);
+    Page<Recipe> findByTitleContainingIgnoreCase(String search, Pageable pageable);
 }
+
