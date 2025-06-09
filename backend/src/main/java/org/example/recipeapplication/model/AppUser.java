@@ -1,32 +1,32 @@
 package org.example.recipeapplication.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.With;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Data
-@With
+@Builder
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
 public class AppUser implements UserDetails {
+    // sprawdzac czy taki uzytwkownik jest w bazie, przy uzyciu dto
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String profilePicture;
 
-    private String name;
+    private String firstName;
 
-    private String surname;
+    private String lastName;
 
     private String email;
 
@@ -37,7 +37,14 @@ public class AppUser implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return  List.of(new SimpleGrantedAuthority(role.name()));
+        Set<SimpleGrantedAuthority> authorities = role.getPermissions()
+                .stream()
+                .map(permission -> new SimpleGrantedAuthority(permission.name()))
+                .collect(Collectors.toSet());
+
+        authorities.add(new SimpleGrantedAuthority("ROLE_" + role.name()));
+
+        return authorities;
     }
 
     @Override
