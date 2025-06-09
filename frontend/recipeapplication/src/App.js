@@ -4,7 +4,10 @@ import Header from './Header';
 import Footer from './Footer';
 import { useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Routes, Route } from 'react-router-dom';
+import RecipeDetails from './RecipeDetails';
+import Login from './Login';
+import Register from './Register';
 
 function App() {
   const { t } = useTranslation();
@@ -35,39 +38,49 @@ function App() {
   }, []);
 
   return (
-    <div className="App">
+    <div className="App app-bg">
       <Header />
-      <main>
-        <section className="search-section">
-          <input type="text" className="search-input" placeholder={t('searchPlaceholder')} />
-          <button className="search-btn">{t('searchButton')}</button>
-        </section>
-        <section>
-          <h2>{t('recipesList')}</h2>
-          <div className="recipes-list">
-            {loading && <p>Ładowanie...</p>}
-            {error && <p style={{color: 'red'}}>{error}</p>}
-            {!loading && !error && recipes.length === 0 && <p>{t('noRecipes')}</p>}
-            {!loading && !error && recipes.length > 0 && (
-              <ul style={{listStyle: 'none', padding: 0}}>
-                {recipes.map(recipe => (
-                  <li
-                    key={recipe.id}
-                    style={{marginBottom: '24px', textAlign: 'left', borderBottom: '1px solid #eee', paddingBottom: '16px', cursor: 'pointer'}}
-                    onClick={() => navigate(`/recipes/${recipe.id}`)}
-                  >
-                    <h3 style={{margin: 0}}>{recipe.title}</h3>
-                    <p style={{margin: '8px 0'}}>{recipe.description}</p>
-                    <div style={{fontSize: '0.95rem', color: '#555'}}>
-                      {t('author')}: {recipe.author.firstName} {recipe.author.lastName} | {t('rate')}: {recipe.rate} | {t('estimatedTime')}: {recipe.estimatedTimeToPrepare}
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        </section>
-      </main>
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <main className="main-content">
+              <section className="search-section">
+                <input type="text" className="search-input" placeholder={t('searchPlaceholder')} />
+                <button className="search-btn">{t('searchButton')}</button>
+              </section>
+              <section>
+                <h2>{t('recipesList')}</h2>
+                <div className="recipes-list">
+                  {loading && <p className="loading-text">Ładowanie...</p>}
+                  {error && <p className="error-text">{error}</p>}
+                  {!loading && !error && recipes.length === 0 && <p>{t('noRecipes')}</p>}
+                  {!loading && !error && recipes.length > 0 && (
+                    <ul style={{listStyle: 'none', padding: 0}}>
+                      {recipes.map(recipe => (
+                        <li
+                          key={recipe.id}
+                          className="recipe-item"
+                          onClick={() => navigate(`/recipes/${recipe.id}`)}
+                        >
+                          <h3>{recipe.title}</h3>
+                          <p>{recipe.description}</p>
+                          <div className="recipe-meta">
+                            {t('author')}: {recipe.author.firstName} {recipe.author.lastName} | {t('rate')}: {recipe.rate} | {t('estimatedTime')}: {recipe.estimatedTimeToPrepare}
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </section>
+            </main>
+          }
+        />
+        <Route path="/recipes/:id" element={<RecipeDetails />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+      </Routes>
       <Footer />
     </div>
   );

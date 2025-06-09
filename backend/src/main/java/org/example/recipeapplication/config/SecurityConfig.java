@@ -1,6 +1,7 @@
 package org.example.recipeapplication.config;
 
 import lombok.RequiredArgsConstructor;
+import org.example.recipeapplication.model.Permission;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -32,7 +33,8 @@ public class SecurityConfig {
             "/swagger-ui/**",
             "/webjars/**",
             "/swagger-ui.html",
-            "/api/v1/recipes"};
+            "/api/v1/recipes",
+            "/api/v1/recipes/**",};
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;
     private final LogoutHandler logoutHandler;
@@ -52,9 +54,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(req ->
                         req.requestMatchers(WHITE_LIST_URL)
                                 .permitAll()
-                                .requestMatchers(POST, "/api/v1/recipes/add").hasAuthority("RECIPE_CREATE")
+                                .requestMatchers(POST, "/api/v1/recipes/add").hasAuthority(String.valueOf(Permission.RECIPE_CREATE))
                                 .requestMatchers("/api/v1/management/**").hasAnyRole(ADMIN.name())
-                                .requestMatchers(GET, "/api/v1/recipes/**").hasAnyAuthority("RECIPE_READ", "ADMIN_READ")
+                                .requestMatchers(GET, "/api/v1/recipes/**").hasAnyAuthority("RECIPE_READ", "ADMIN_READ", "USER_READ")
                                 .requestMatchers(POST, "/api/v1/recipes/**").hasAuthority("ADMIN_CREATE") // zamiast stringow uzyj enuma permission
                                 .requestMatchers(PUT, "/api/v1/recipes/**").hasAuthority("ADMIN_UPDATE")
                                 .requestMatchers(DELETE, "/api/v1/recipes/**").hasAuthority("ADMIN_DELETE")
