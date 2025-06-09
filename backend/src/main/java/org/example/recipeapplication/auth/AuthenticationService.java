@@ -36,7 +36,7 @@ public class AuthenticationService {
                 .lastName(request.getLastName())      // poprawne nazwy pól
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
-                .role(request.getRole())                     // zawsze USER przy rejestracji
+                .role(Role.USER) // Wymuszamy zawsze USER
                 .build();
         var savedUser = appUserRepository.save(user);
         var accessToken = jwtService.generateToken(savedUser);
@@ -127,3 +127,4 @@ public class AuthenticationService {
         }
     }
 }
+

@@ -1,6 +1,8 @@
 package org.example.recipeapplication.repos;
 
 import org.example.recipeapplication.dto.RecipeResponseDTO;
+import org.example.recipeapplication.model.AppUser;
+import org.example.recipeapplication.model.Category;
 import org.example.recipeapplication.model.Recipe;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,5 +21,9 @@ public interface RecipeRepository extends JpaRepository<Recipe, Long> {
     List<Recipe> findByTags_NameContaining(String name);
 
     Page<Recipe> findByTitleContainingIgnoreCase(String search, Pageable pageable);
+
+    Page<Recipe> findByCategory(Category category, Pageable pageable);
+
+    Page<Recipe> findByAuthor(AppUser user, Pageable pageable);
 }
 

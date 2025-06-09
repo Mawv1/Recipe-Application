@@ -31,29 +31,37 @@ public class SecurityConfig {
             "/configuration/security",
             "/swagger-ui/**",
             "/webjars/**",
-            "/swagger-ui.html"};
+            "/swagger-ui.html",
+            "/api/v1/recipes"};
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;
     private final LogoutHandler logoutHandler;
-
+// adnotacja do curla zeby byl token
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
+                .cors(cors -> cors.configurationSource(request -> {
+                    var corsConfig = new org.springframework.web.cors.CorsConfiguration();
+                    corsConfig.setAllowedOrigins(java.util.List.of("http://localhost:3000", "https://localhost:8000"));
+                    corsConfig.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                    corsConfig.setAllowedHeaders(java.util.List.of("*"));
+                    corsConfig.setAllowCredentials(true);
+                    return corsConfig;
+                }))
                 .authorizeHttpRequests(req ->
                         req.requestMatchers(WHITE_LIST_URL)
                                 .permitAll()
+                                .requestMatchers(POST, "/api/v1/recipes/add").hasAuthority("RECIPE_CREATE")
                                 .requestMatchers("/api/v1/management/**").hasAnyRole(ADMIN.name())
                                 .requestMatchers(GET, "/api/v1/recipes/**").hasAnyAuthority("RECIPE_READ", "ADMIN_READ")
-                                .requestMatchers(GET, "/api/v1/recipes/**").hasAuthority("ADMIN_READ")
-                                .requestMatchers(POST, "/api/v1/recipes/**").hasAuthority("ADMIN_CREATE")
+                                .requestMatchers(POST, "/api/v1/recipes/**").hasAuthority("ADMIN_CREATE") // zamiast stringow uzyj enuma permission
                                 .requestMatchers(PUT, "/api/v1/recipes/**").hasAuthority("ADMIN_UPDATE")
                                 .requestMatchers(DELETE, "/api/v1/recipes/**").hasAuthority("ADMIN_DELETE")
                                 .requestMatchers(GET, "/api/v1/users/**").hasAnyAuthority("USER_READ", "ADMIN_READ")
                                 .requestMatchers(POST, "/api/v1/users/**").hasAuthority("USER_CREATE")
                                 .requestMatchers(PUT, "/api/v1/users/**").hasAuthority("USER_UPDATE")
                                 .requestMatchers(DELETE, "/api/v1/users/**").hasAuthority("USER_DELETE")
-                                .requestMatchers(POST, "/api/v1/recipes/add").authenticated()
                                 .anyRequest()
                                 .authenticated()
                 )
@@ -75,3 +83,4 @@ public class SecurityConfig {
 //        };
 //    }
 }
+

@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,7 +40,7 @@ public class RecipeService {
         return recipeRepository.findByTitleContainingIgnoreCase(search, pageable).map(this::mapToDTO);
     }
 
-    public RecipeResponseDTO addRecipe(RecipeRequestDTO dto) {
+    public RecipeResponseDTO addRecipe(RecipeRequestDTO dto, String email) {
         Recipe recipe = new Recipe();
         recipe.setTitle(dto.title());
         recipe.setDescription(dto.description());
@@ -47,8 +48,8 @@ public class RecipeService {
         recipe.setDateOfCreation(new Timestamp(System.currentTimeMillis()));
         recipe.setRate(0f);
 
-        AppUser author = userRepository.findAll().stream().findFirst()
-                .orElseThrow(() -> new EntityNotFoundException("Author not found"));
+        AppUser author = userRepository.findByEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException("Author not found with username: " + email));
         recipe.setAuthor(author);
 
         Category category = categoryRepository.findById(dto.categoryId())
@@ -86,6 +87,33 @@ public class RecipeService {
                 ),
                 recipe.getDateOfCreation().toLocalDateTime()
         );
+    }
+
+    public Page<RecipeResponseDTO> getRecipesByCategory(Long categoryId, Pageable pageable) {
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new EntityNotFoundException("Category not found"));
+        return recipeRepository.findByCategory(category, pageable).map(this::mapToDTO);
+    }
+
+    public Page<RecipeResponseDTO> getUserRecipes(Long userId, Pageable pageable) {
+        AppUser user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        return recipeRepository.findByAuthor(user, pageable).map(this::mapToDTO);
+    }
+
+    public Optional<RecipeResponseDTO> getRecipeById(Long id) {
+        return recipeRepository.findById(id).map(this::mapToDTO);
+    }
+
+    public void deleteRecipe(Long id, String email) {
+        Recipe recipe = recipeRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Recipe not found with id: " + id));
+
+        if (!recipe.getAuthor().getEmail().equals(email)) {
+            throw new SecurityException("You are not authorized to delete this recipe.");
+        }
+
+        recipeRepository.delete(recipe);
     }
 }
 
