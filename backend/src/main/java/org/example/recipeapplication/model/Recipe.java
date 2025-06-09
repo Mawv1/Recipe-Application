@@ -26,28 +26,22 @@ public class Recipe {
 
     private Float rate;
 
-    private Float estimatedTimeToPrepare;
+    private String estimatedTimeToPrepare;
 
-    @OneToOne
+    @ManyToOne
+    @JoinColumn(name = "author_id")
     private AppUser author;
 
     private Timestamp dateOfCreation;
 
     private Timestamp dateOfModification;
 
-    @ManyToMany
-    @JoinTable(
-            name = "recipe_ingredient",
-            joinColumns = @JoinColumn(name = "recipe_id"),
-            inverseJoinColumns = @JoinColumn(name = "ingredient_id")
-    )
+    @OneToMany
     private List<Ingredient> ingredients;
 
     @ManyToOne
-    private RecipeCategory recipeCategory;
-
-    @ManyToOne
-    private MealCategory mealCategory;
+    @JoinColumn(name = "category_id")
+    private Category category;
 
     @OneToMany
     private List<RecipeImage> images;

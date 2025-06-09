@@ -18,7 +18,7 @@ spring:
     open-in-view: false
     show-sql: true
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     properties:
       hibernate:
         format_sql: true
@@ -33,5 +33,10 @@ spring:
     driver-class-name: org.postgresql.Driver
 
 server:
-  port: 8082
+  port: 8080
 
+jwt:
+  secret-key: ec6b682bc2523c4c882ca4172b09b4242715519bef277eecdc0608bf8c20f88aaa52393ee04011f46de93b85f1f329eafaa66292727b508093d814f13da220b7
+  expiration: 86400000
+  refresh-token:
+    expiration: 604800000

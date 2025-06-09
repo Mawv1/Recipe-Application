@@ -23,7 +23,4 @@ public class Ingredient {
     private String amount;
 
     private String unit;
-
-    @OneToMany
-    private List<Recipe> recipes;
 }
