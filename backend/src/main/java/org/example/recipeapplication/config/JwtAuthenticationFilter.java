@@ -32,10 +32,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
+        // Pomijamy filtr dla endpointów autoryzacyjnych
         if (request.getServletPath().contains("/api/v1/auth")) {
             filterChain.doFilter(request, response);
             return;
         }
+
+        // Pomijamy filtr dla publicznych endpointów przepisów
+        String path = request.getServletPath();
+        if (path.equals("/api/v1/recipes") ||
+            path.startsWith("/api/v1/recipes/search") ||
+            path.startsWith("/api/v1/recipes/category/") ||
+            path.startsWith("/api/v1/recipes/user/") ||
+            (path.startsWith("/api/v1/recipes/") && request.getMethod().equals("GET"))) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         final String authHeader = request.getHeader("Authorization");
         final String jwt;
         final String userEmail;

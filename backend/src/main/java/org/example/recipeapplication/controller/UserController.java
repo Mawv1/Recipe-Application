@@ -26,5 +26,15 @@ public class UserController {
     public List<FollowedRecipe> getUserFollowedRecipes(@PathVariable Long userId) {
         return userService.getUserFollowedRecipes(userId);
     }
+
+    @GetMapping("/{userId}")
+    public UserResponseDTO getUserProfile(@PathVariable Long userId) {
+        return userService.getUserProfile(userId);
+    }
+
+    @GetMapping("/email/{email}")
+    public UserResponseDTO getUserByEmail(@PathVariable String email) {
+        return userService.getUserByEmail(email);
+    }
 }
 

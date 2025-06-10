@@ -45,6 +45,18 @@ public class UserService {
                 user.getProfilePicture()
         );
     }
+
+    public UserResponseDTO getUserProfile(Long userId) {
+        AppUser user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        return mapToDTO(user);
+    }
+
+    public UserResponseDTO getUserByEmail(String email) {
+        AppUser user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with email: " + email));
+        return mapToDTO(user);
+    }
 }
 
 

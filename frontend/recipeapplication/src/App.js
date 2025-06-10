@@ -8,6 +8,7 @@ import { useNavigate, Routes, Route } from 'react-router-dom';
 import RecipeDetails from './RecipeDetails';
 import Login from './Login';
 import Register from './Register';
+import Profile from './Profile';
 
 function App() {
   const { t } = useTranslation();
@@ -17,14 +18,11 @@ function App() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    fetch('http://localhost:8080/api/v1/recipes', {
-      headers: {
-        'Authorization': token ? 'Bearer ' + token : ''
-      }
-    })
+    setLoading(true);
+    setError(null);
+    fetch('http://localhost:8080/api/v1/recipes')
       .then(res => {
-        if (!res.ok) throw new Error('Błąd podczas pobierania przepisów: ' + res.statusText);
+        if (!res.ok) throw new Error(t('fetchRecipesError', 'Błąd podczas pobierania przepisów: ') + res.statusText);
         return res.json();
       })
       .then(data => {
@@ -35,7 +33,7 @@ function App() {
         setError(err.message);
         setLoading(false);
       });
-  }, []);
+  }, [t]);
 
   return (
     <div className="App app-bg">
@@ -52,7 +50,7 @@ function App() {
               <section>
                 <h2>{t('recipesList')}</h2>
                 <div className="recipes-list">
-                  {loading && <p className="loading-text">Ładowanie...</p>}
+                  {loading && <p className="loading-text">{t('loading', 'Ładowanie...')}</p>}
                   {error && <p className="error-text">{error}</p>}
                   {!loading && !error && recipes.length === 0 && <p>{t('noRecipes')}</p>}
                   {!loading && !error && recipes.length > 0 && (
@@ -80,6 +78,7 @@ function App() {
         <Route path="/recipes/:id" element={<RecipeDetails />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/profile" element={<Profile />} />
       </Routes>
       <Footer />
     </div>

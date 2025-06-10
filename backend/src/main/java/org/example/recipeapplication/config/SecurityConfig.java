@@ -32,9 +32,17 @@ public class SecurityConfig {
             "/configuration/security",
             "/swagger-ui/**",
             "/webjars/**",
-            "/swagger-ui.html",
+            "/swagger-ui.html"};
+
+    // Endpointy związane z przeglądaniem przepisów, dostępne bez autentykacji
+    private static final String[] PUBLIC_RECIPE_ENDPOINTS = {
             "/api/v1/recipes",
-            "/api/v1/recipes/**",};
+            "/api/v1/recipes/search",
+            "/api/v1/recipes/category/**",
+            "/api/v1/recipes/user/**",
+            "/api/v1/recipes/{id:[\\d]+}"
+    };
+
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;
     private final LogoutHandler logoutHandler;
@@ -54,10 +62,13 @@ public class SecurityConfig {
                 .authorizeHttpRequests(req ->
                         req.requestMatchers(WHITE_LIST_URL)
                                 .permitAll()
+                                .requestMatchers(GET, PUBLIC_RECIPE_ENDPOINTS)
+                                .permitAll()
                                 .requestMatchers(POST, "/api/v1/recipes/add").hasAuthority(String.valueOf(Permission.RECIPE_CREATE))
                                 .requestMatchers("/api/v1/management/**").hasAnyRole(ADMIN.name())
-                                .requestMatchers(GET, "/api/v1/recipes/**").hasAnyAuthority("RECIPE_READ", "ADMIN_READ", "USER_READ")
-                                .requestMatchers(POST, "/api/v1/recipes/**").hasAuthority("ADMIN_CREATE") // zamiast stringow uzyj enuma permission
+                                // Usuwam sprzeczną regułę, która wymagałaby autoryzacji dla endpointów już dodanych do publicznych:
+                                // .requestMatchers(GET, "/api/v1/recipes/**").hasAnyAuthority("RECIPE_READ", "ADMIN_READ", "USER_READ")
+                                .requestMatchers(POST, "/api/v1/recipes/**").hasAuthority("ADMIN_CREATE")
                                 .requestMatchers(PUT, "/api/v1/recipes/**").hasAuthority("ADMIN_UPDATE")
                                 .requestMatchers(DELETE, "/api/v1/recipes/**").hasAuthority("ADMIN_DELETE")
                                 .requestMatchers(GET, "/api/v1/users/**").hasAnyAuthority("USER_READ", "ADMIN_READ")
