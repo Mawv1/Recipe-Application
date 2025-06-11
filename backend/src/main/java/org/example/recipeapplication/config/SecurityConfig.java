@@ -43,7 +43,8 @@ public class SecurityConfig {
             "/api/v1/recipes/user/**",
             "/api/v1/recipes/{id:[\\d]+}",
             "/api/v1/users/*/followed-recipes", // przeglądanie śledzonych przepisów innych użytkowników
-            "/api/v1/users/email/*" // wyszukiwanie użytkownika po emailu
+            "/api/v1/users/email/*", // wyszukiwanie użytkownika po emailu
+            "/api/v1/users/*/password"
     };
 
     private final JwtAuthenticationFilter jwtAuthFilter;
@@ -82,6 +83,8 @@ public class SecurityConfig {
                                 .requestMatchers(DELETE, "/api/v1/recipes/*/follow")
                                 .authenticated()
                                 .requestMatchers(GET, "/api/v1/users/me/followed-recipes/*/status")
+                                .authenticated()
+                                .requestMatchers(PUT,"/api/v1/users/*/password")
                                 .authenticated()
 
                                 // Pozostałe reguły

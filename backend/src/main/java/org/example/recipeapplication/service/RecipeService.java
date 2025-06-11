@@ -83,7 +83,8 @@ public class RecipeService {
                         recipe.getAuthor().getId(),
                         recipe.getAuthor().getFirstName(),
                         recipe.getAuthor().getLastName(),
-                        recipe.getAuthor().getProfilePicture()
+                        recipe.getAuthor().getProfilePicture(),
+                        recipe.getAuthor().getEmail()
                 ),
                 recipe.getDateOfCreation().toLocalDateTime()
         );

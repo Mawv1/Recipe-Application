@@ -61,7 +61,8 @@ public class CommentService {
                         comment.getAuthor().getId(),
                         comment.getAuthor().getFirstName(),
                         comment.getAuthor().getLastName(),
-                        comment.getAuthor().getProfilePicture()
+                        comment.getAuthor().getProfilePicture(),
+                        comment.getAuthor().getEmail()
                 ),
                 comment.getDateOfCreation().toLocalDateTime()
         );

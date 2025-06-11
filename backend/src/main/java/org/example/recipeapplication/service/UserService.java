@@ -8,6 +8,7 @@ import org.example.recipeapplication.model.AppUser;
 import org.example.recipeapplication.model.FollowedRecipe;
 import org.example.recipeapplication.repos.AppUserRepository;
 import org.example.recipeapplication.repos.FollowedRecipeRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,6 +19,7 @@ public class UserService {
 
     private final AppUserRepository userRepository;
     private final FollowedRecipeRepository followedRecipeRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public UserResponseDTO updateUserProfile(Long id, UserRequestDTO dto) {
         AppUser user = userRepository.findById(id)
@@ -42,7 +44,8 @@ public class UserService {
                 user.getId(),
                 user.getFirstName(),
                 user.getLastName(),
-                user.getProfilePicture()
+                user.getProfilePicture(),
+                user.getEmail()
         );
     }
 
@@ -56,6 +59,20 @@ public class UserService {
         AppUser user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with email: " + email));
         return mapToDTO(user);
+    }
+
+    public void updatePassword(Long userId, String oldPassword, String newPassword) {
+        AppUser user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("Użytkownik nie znaleziony"));
+
+        // Sprawdzamy, czy stare hasło jest poprawne przy użyciu PasswordEncoder
+        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+            throw new IllegalArgumentException("Stare hasło jest niepoprawne");
+        }
+
+        // Szyfrujemy nowe hasło przed zapisaniem
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
     }
 }
 

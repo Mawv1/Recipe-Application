@@ -7,5 +7,10 @@ public record UserResponseDTO(
         Long id,
         String firstName,
         String lastName,
-        String profilePicture
-) {}
+        String profilePicture,
+        String email
+) {
+    public String getEmail() {
+        return email != null ? email : "No email provided";
+    }
+}
