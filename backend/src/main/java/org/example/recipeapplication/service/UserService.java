@@ -31,10 +31,10 @@ public class UserService {
     }
 
     public List<FollowedRecipe> getUserFollowedRecipes(Long userId) {
-        // Zakładam, że FollowedRecipe ma użytkowników, więc filtruję po userId
-        return followedRecipeRepository.findAll().stream()
-                .filter(fr -> fr.getUsers().stream().anyMatch(u -> u.getId().equals(userId)))
-                .toList();
+        // Po modyfikacji modelu FollowedRecipe możemy bezpośrednio użyć repozytorium
+        AppUser user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        return followedRecipeRepository.findByUser(user);
     }
 
     private UserResponseDTO mapToDTO(AppUser user) {
@@ -58,5 +58,4 @@ public class UserService {
         return mapToDTO(user);
     }
 }
-
 

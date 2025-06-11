@@ -38,13 +38,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        // Pomijamy filtr dla publicznych endpointów przepisów
         String path = request.getServletPath();
+        String method = request.getMethod();
+
+        // Pomijamy filtr dla publicznych endpointów
         if (path.equals("/api/v1/recipes") ||
             path.startsWith("/api/v1/recipes/search") ||
             path.startsWith("/api/v1/recipes/category/") ||
             path.startsWith("/api/v1/recipes/user/") ||
-            (path.startsWith("/api/v1/recipes/") && request.getMethod().equals("GET"))) {
+            (path.startsWith("/api/v1/recipes/") && method.equals("GET")) ||
+            // Publiczne endpointy dla obserwowanych przepisów
+            path.matches("/api/v1/users/\\d+/followed-recipes") || // Regexp dla /users/{userId}/followed-recipes
+            path.startsWith("/api/v1/users/email/")) {
             filterChain.doFilter(request, response);
             return;
         }

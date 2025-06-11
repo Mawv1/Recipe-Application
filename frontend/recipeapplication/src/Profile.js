@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import AuthService from './AuthService';
 import './Auth.css';
 
 function Profile() {
@@ -12,6 +11,60 @@ function Profile() {
   const [loading, setLoading] = useState(true);
   const [authState, setAuthState] = useState('checking');
   const navigate = useNavigate();
+
+  // Funkcja do pobierania ulubionych przepisów bezpośrednio z API
+  const fetchFollowedRecipes = async (userId, token) => {
+    try {
+      // Pobierz ulubione przepisy z API
+      console.log('Próbuję pobrać ulubione przepisy z /api/v1/users/me/followed-recipes');
+
+      const recipesResponse = await fetch(
+        'http://localhost:8080/api/v1/users/me/followed-recipes',
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      console.log('Status odpowiedzi z /users/me/followed-recipes:', recipesResponse.status);
+
+      if (recipesResponse.ok) {
+        const data = await recipesResponse.json();
+        console.log('Pobrano ulubione przepisy z /users/me/followed-recipes:', data);
+        return data.content || data;
+      }
+
+      // Jako alternatywę, spróbujmy użyć endpointu z ID użytkownika
+      console.log(`Próbuję pobrać przepisy z /api/v1/users/${userId}/followed-recipes`);
+
+      const fallbackResponse = await fetch(
+        `http://localhost:8080/api/v1/users/${userId}/followed-recipes`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      console.log('Status odpowiedzi z /users/id/followed-recipes:', fallbackResponse.status);
+
+      if (fallbackResponse.ok) {
+        const data = await fallbackResponse.json();
+        console.log('Pobrano przepisy z /users/id/followed-recipes:', data);
+        return data.content || data;
+      }
+
+      // Jeśli nic nie znaleźliśmy, zwróć pustą tablicę
+      return [];
+
+    } catch (err) {
+      console.error('Błąd podczas pobierania ulubionych przepisów:', err);
+      return [];
+    }
+  };
 
   useEffect(() => {
     let isMounted = true;
@@ -67,20 +120,12 @@ function Profile() {
                 setAuthState('authenticated');
               }
 
-              // Pobierz obserwowane przepisy
-              try {
-                const recipesResponse = await fetch(
-                  `http://localhost:8080/api/v1/users/${userData.id}/followed-recipes`,
-                  { headers: { 'Authorization': `Bearer ${token}` } }
-                );
-
-                if (recipesResponse.ok) {
-                  const recipesData = await recipesResponse.json();
-                  if (isMounted) setRecipes(recipesData || []);
-                }
-              } catch (err) {
-                // Ignorujemy błędy przepisów - nie są krytyczne
+              // Pobierz ulubione przepisy
+              const followedRecipes = await fetchFollowedRecipes(userData.id, token);
+              if (isMounted && followedRecipes.length > 0) {
+                setRecipes(followedRecipes);
               }
+
             } catch (decodeError) {
               throw new Error("Nieprawidłowy format tokena. Zaloguj się ponownie.");
             }
@@ -117,8 +162,28 @@ function Profile() {
     };
   }, [navigate, t]);
 
+  // Funkcja odświeżająca listę ulubionych przepisów
+  const refreshFollowedRecipes = async () => {
+    if (!user) return;
+
+    const token = localStorage.getItem('token');
+    if (!token) {
+      navigate('/login');
+      return;
+    }
+
+    try {
+      // Pobierz świeże dane
+      const followedRecipes = await fetchFollowedRecipes(user.id, token);
+      setRecipes(followedRecipes);
+    } catch (err) {
+      console.error('Błąd podczas odświeżania przepisów:', err);
+    }
+  };
+
   const handleLogout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('refresh_token');
     window.dispatchEvent(new Event('tokenChange'));
     navigate('/login');
   };
@@ -157,15 +222,31 @@ function Profile() {
         <strong>{t('lastName', 'Nazwisko')}:</strong> {user.lastName}<br/>
         <strong>{t('email', 'Email')}:</strong> {user.email}
       </div>
-      <button className="auth-form button" onClick={handleLogout}>{t('logout', 'Wyloguj się')}</button>
+      <div style={{display: 'flex', gap: '10px', marginBottom: '20px'}}>
+        <button className="auth-form button" onClick={handleLogout}>
+          {t('logout', 'Wyloguj się')}
+        </button>
+        <button className="auth-form button" onClick={refreshFollowedRecipes}>
+          {t('refreshRecipes', 'Odśwież przepisy')}
+        </button>
+      </div>
+
       <h3 style={{marginTop: '32px'}}>{t('followedRecipes', 'Obserwowane przepisy')}</h3>
       {recipes.length === 0 ? (
         <p>{t('noFollowedRecipes', 'Brak obserwowanych przepisów.')}</p>
       ) : (
         <ul style={{paddingLeft: 0, listStyle: 'none'}}>
           {recipes.map(recipe => (
-            <li key={recipe.id} className="recipe-item" style={{marginBottom: '16px'}}>
-              <strong>{recipe.title}</strong><br/>
+            <li
+              key={recipe.id || recipe.recipeId}
+              className="recipe-item"
+              style={{marginBottom: '16px', cursor: 'pointer'}}
+              onClick={() => navigate(`/recipes/${recipe.recipeId}`)}
+            >
+              <strong>{recipe.title || recipe.recipeTitle}</strong><br/>
+              {recipe.description && (
+                <span style={{color: '#666', fontSize: '0.9em'}}>{recipe.description.substring(0, 100)}...</span>
+              )}
             </li>
           ))}
         </ul>

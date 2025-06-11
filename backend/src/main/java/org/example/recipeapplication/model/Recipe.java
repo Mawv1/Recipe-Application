@@ -24,7 +24,7 @@ public class Recipe {
 
     private String description;
 
-    private Float rate;
+    private Float rating;
 
     private String estimatedTimeToPrepare;
 

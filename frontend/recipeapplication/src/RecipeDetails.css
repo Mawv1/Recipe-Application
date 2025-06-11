@@ -49,3 +49,95 @@
   background: linear-gradient(90deg, #ffec99 0%, #ffa94d 100%);
 }
 
+/* Style dla przycisku "Dodaj do ulubionych" */
+.recipe-actions {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 16px;
+  margin-top: 12px;
+  position: relative; /* Zmiana z absolute na relative */
+}
+
+.follow-btn {
+  background: transparent;
+  border: none;
+  font-size: 1.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #ccc;
+  padding: 8px;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.follow-btn:hover {
+  transform: scale(1.1);
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #fa5252;
+}
+
+.follow-btn.followed {
+  color: #fa5252;
+}
+
+.follow-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Wskaźnik usuwania z ulubionych */
+.remove-indicator {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  background-color: #fff;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  color: #fa5252;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.follow-btn.followed:hover .remove-indicator {
+  opacity: 1;
+}
+
+/* Style dla tekstu obok przycisku */
+.favorite-text {
+  font-size: 0.95rem;
+  margin-left: 8px;
+  align-self: center;
+  color: #555;
+}
+
+.follow-btn.followed + .favorite-text {
+  color: #fa5252;
+}
+
+/* Animacja ładowania */
+.loading-spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  border-top-color: #fa5252;
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+

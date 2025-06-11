@@ -46,7 +46,7 @@ public class RecipeService {
         recipe.setDescription(dto.description());
         recipe.setEstimatedTimeToPrepare(dto.estimatedTimeToPrepare());
         recipe.setDateOfCreation(new Timestamp(System.currentTimeMillis()));
-        recipe.setRate(0f);
+        recipe.setRating(0f);
 
         AppUser author = userRepository.findByEmail(email)
                 .orElseThrow(() -> new EntityNotFoundException("Author not found with username: " + email));
@@ -77,7 +77,7 @@ public class RecipeService {
                 recipe.getId(),
                 recipe.getTitle(),
                 recipe.getDescription(),
-                recipe.getRate(),
+                recipe.getRating(),
                 recipe.getEstimatedTimeToPrepare(),
                 new UserResponseDTO(
                         recipe.getAuthor().getId(),

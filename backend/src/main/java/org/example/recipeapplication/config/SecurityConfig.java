@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.recipeapplication.model.Permission;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -40,41 +41,52 @@ public class SecurityConfig {
             "/api/v1/recipes/search",
             "/api/v1/recipes/category/**",
             "/api/v1/recipes/user/**",
-            "/api/v1/recipes/{id:[\\d]+}"
+            "/api/v1/recipes/{id:[\\d]+}",
+            "/api/v1/users/*/followed-recipes", // przeglądanie śledzonych przepisów innych użytkowników
+            "/api/v1/users/email/*" // wyszukiwanie użytkownika po emailu
     };
 
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;
     private final LogoutHandler logoutHandler;
-// adnotacja do curla zeby byl token
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
-                .cors(cors -> cors.configurationSource(request -> {
-                    var corsConfig = new org.springframework.web.cors.CorsConfiguration();
-                    corsConfig.setAllowedOrigins(java.util.List.of("http://localhost:3000", "https://localhost:8000"));
-                    corsConfig.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-                    corsConfig.setAllowedHeaders(java.util.List.of("*"));
-                    corsConfig.setAllowCredentials(true);
-                    return corsConfig;
-                }))
+                .cors(cors -> {
+                    cors.configurationSource(request -> {
+                        var corsConfig = new org.springframework.web.cors.CorsConfiguration();
+                        corsConfig.setAllowedOrigins(java.util.List.of("http://localhost:3000"));
+                        corsConfig.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                        corsConfig.setAllowedHeaders(java.util.List.of("*"));
+                        corsConfig.setAllowCredentials(true);
+                        corsConfig.setMaxAge(3600L);
+                        return corsConfig;
+                    });
+                })
                 .authorizeHttpRequests(req ->
                         req.requestMatchers(WHITE_LIST_URL)
                                 .permitAll()
+                                // Publiczne endpointy - tylko GET
                                 .requestMatchers(GET, PUBLIC_RECIPE_ENDPOINTS)
                                 .permitAll()
+
+                                // Endpointy wymagające uwierzytelnienia - wszystkie operacje modyfikujące śledzenie
+                                .requestMatchers(POST, "/api/v1/users/me/followed-recipes/*")
+                                .authenticated()
+                                .requestMatchers(DELETE, "/api/v1/users/me/followed-recipes/*")
+                                .authenticated()
+                                .requestMatchers(POST, "/api/v1/recipes/*/follow")
+                                .authenticated()
+                                .requestMatchers(DELETE, "/api/v1/recipes/*/follow")
+                                .authenticated()
+                                .requestMatchers(GET, "/api/v1/users/me/followed-recipes/*/status")
+                                .authenticated()
+
+                                // Pozostałe reguły
                                 .requestMatchers(POST, "/api/v1/recipes/add").hasAuthority(String.valueOf(Permission.RECIPE_CREATE))
                                 .requestMatchers("/api/v1/management/**").hasAnyRole(ADMIN.name())
-                                // Usuwam sprzeczną regułę, która wymagałaby autoryzacji dla endpointów już dodanych do publicznych:
-                                // .requestMatchers(GET, "/api/v1/recipes/**").hasAnyAuthority("RECIPE_READ", "ADMIN_READ", "USER_READ")
-                                .requestMatchers(POST, "/api/v1/recipes/**").hasAuthority("ADMIN_CREATE")
-                                .requestMatchers(PUT, "/api/v1/recipes/**").hasAuthority("ADMIN_UPDATE")
-                                .requestMatchers(DELETE, "/api/v1/recipes/**").hasAuthority("ADMIN_DELETE")
-                                .requestMatchers(GET, "/api/v1/users/**").hasAnyAuthority("USER_READ", "ADMIN_READ")
-                                .requestMatchers(POST, "/api/v1/users/**").hasAuthority("USER_CREATE")
-                                .requestMatchers(PUT, "/api/v1/users/**").hasAuthority("USER_UPDATE")
-                                .requestMatchers(DELETE, "/api/v1/users/**").hasAuthority("USER_DELETE")
                                 .anyRequest()
                                 .authenticated()
                 )
@@ -88,12 +100,5 @@ public class SecurityConfig {
                 );
         return http.build();
     }
-
-//    @Bean
-//    public LogoutHandler logoutHandler() {
-//        return (request, response, authentication) -> {
-//            // logika wylogowania, np. czyszczenie tokenów
-//        };
-//    }
 }
 
