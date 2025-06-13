@@ -25,11 +25,11 @@ spring:
     database: postgresql
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
-
   datasource:
-    url: jdbc:postgresql://localhost:5432/recipix
-    username: postgres
-    password: postgres
+    # Standardowe połączenie dla lokalnego rozwoju
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/recipix}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
 
 server:

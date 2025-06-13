@@ -5,10 +5,13 @@ function Footer() {
     const { t } = useTranslation();
 
     return (
-        <footer style={{ backgroundColor: '#f8f9fa', padding: '1rem', marginTop: '2rem', textAlign: 'center' }}>
-            <p>&copy; {new Date().getFullYear()} {t('appName', 'Recipe App')} - {t('footerText', 'Wszystkie prawa zastrzeżone')}</p>
+        <footer className="bg-light py-3 mt-auto text-center border-top">
+            <div className="container">
+                <p className="mb-0">&copy; {new Date().getFullYear()} {t('appName', 'Recipe App')} - {t('footerText', 'Wszystkie prawa zastrzeżone')}</p>
+            </div>
         </footer>
     );
 }
 
 export default Footer;
+

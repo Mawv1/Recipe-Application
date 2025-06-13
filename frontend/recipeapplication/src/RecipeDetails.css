@@ -141,3 +141,51 @@
   to { transform: rotate(360deg); }
 }
 
+/* Style dla systemu ocen gwiazdkami */
+.star-rating {
+  display: flex;
+  align-items: center;
+}
+
+.star-rating-icon {
+  cursor: pointer;
+  margin-right: 3px;
+  font-size: 1.5rem;
+}
+
+.star-rating-icon.readonly {
+  cursor: default;
+}
+
+.star-rating-icon svg {
+  transition: color 0.2s ease, transform 0.1s ease;
+}
+
+.star-rating-icon:hover svg {
+  transform: scale(1.2);
+}
+
+.star-rating-icon.readonly:hover svg {
+  transform: none;
+}
+
+.rating-value {
+  font-weight: 500;
+  color: #555;
+}
+
+/* Ulepszenie wyglądu sekcji oceniania */
+.recipe-rating {
+  border-left: 4px solid #ffda85;
+}
+
+/* Animacja dla gwiazdek */
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+.star-rating-icon.active svg {
+  animation: pulse 0.3s ease-in-out;
+}

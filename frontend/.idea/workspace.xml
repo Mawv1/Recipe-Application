@@ -4,30 +4,54 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="22b7922e-f76a-4792-913c-1abe50672504" name="Changes" comment="Added package-json" />
+    <list default="true" id="22b7922e-f76a-4792-913c-1abe50672504" name="Changes" comment="Added posting rates to recipe">
+      <change beforePath="$PROJECT_DIR$/../backend/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/src/main/resources/application.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/target/classes/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/target/classes/application.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/recipeapplication/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/recipeapplication/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/recipeapplication/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/recipeapplication/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/recipeapplication/src/App.css" beforeDir="false" afterPath="$PROJECT_DIR$/recipeapplication/src/App.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/recipeapplication/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/recipeapplication/src/App.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/recipeapplication/src/Footer.js" beforeDir="false" afterPath="$PROJECT_DIR$/recipeapplication/src/Footer.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/recipeapplication/src/Header.js" beforeDir="false" afterPath="$PROJECT_DIR$/recipeapplication/src/Header.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/recipeapplication/src/Login.js" beforeDir="false" afterPath="$PROJECT_DIR$/recipeapplication/src/Login.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/recipeapplication/src/Profile.js" beforeDir="false" afterPath="$PROJECT_DIR$/recipeapplication/src/Profile.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/recipeapplication/src/RecipeDetails.css" beforeDir="false" afterPath="$PROJECT_DIR$/recipeapplication/src/RecipeDetails.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/recipeapplication/src/RecipeDetails.js" beforeDir="false" afterPath="$PROJECT_DIR$/recipeapplication/src/RecipeDetails.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/recipeapplication/src/Register.js" beforeDir="false" afterPath="$PROJECT_DIR$/recipeapplication/src/Register.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/recipeapplication/src/i18n.js" beforeDir="false" afterPath="$PROJECT_DIR$/recipeapplication/src/i18n.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/recipeapplication/src/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/recipeapplication/src/index.js" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="JavaScript File" />
+      </list>
+    </option>
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
   </component>
-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
-  "lastFilter": {
-    "state": "OPEN",
-    "assignee": "Mawv1"
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;Mawv1&quot;
   }
-}]]></component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/Mawv1/Recipe-Application",
-    "accountId": "7b84edcc-447e-4d2d-af78-d5eb85c8957d"
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/Mawv1/Recipe-Application&quot;,
+    &quot;accountId&quot;: &quot;7b84edcc-447e-4d2d-af78-d5eb85c8957d&quot;
   }
-}]]></component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 2
-}]]></component>
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 2
+}</component>
   <component name="ProjectId" id="2y2E3O5sbQCSqxwo6CuPH8YINgu" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -37,8 +61,11 @@
   "keyToString": {
     "Jest.App.test.js.executor": "Run",
     "Node.js.App.js.executor": "Run",
+    "Node.js.Profile.js.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "git-widget-placeholder": "master",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "E:/Intellij projects/java/Zaawansowane Aplikacje Internetowe/RecipeApplication/frontend",
     "node.js.detected.package.eslint": "true",
@@ -48,6 +75,7 @@
     "nodejs.jest.jest_package": "E:/Intellij projects/java/Zaawansowane Aplikacje Internetowe/RecipeApplication/frontend/recipeapplication/node_modules/react-scripts",
     "nodejs_package_manager_path": "npm",
     "settings.editor.selected.configurable": "preferences.pluginManager",
+    "ts.external.directory.path": "C:\\Program Files\\JetBrains\\IntelliJ IDEA 2024.3.6\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
@@ -68,6 +96,7 @@
       <option name="presentableId" value="Default" />
       <updated>1749024067596</updated>
       <workItem from="1749024068906" duration="16504000" />
+      <workItem from="1749503399801" duration="40937000" />
     </task>
     <task id="LOCAL-00001" summary="Added package-json">
       <option name="closed" value="true" />
@@ -77,7 +106,39 @@
       <option name="project" value="LOCAL" />
       <updated>1749501808408</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Login and register logic">
+      <option name="closed" value="true" />
+      <created>1749509231612</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1749509231612</updated>
+    </task>
+    <task id="LOCAL-00003" summary="Added profile screen">
+      <option name="closed" value="true" />
+      <created>1749592190460</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1749592190460</updated>
+    </task>
+    <task id="LOCAL-00004" summary="Added logic for user to follow recipe">
+      <option name="closed" value="true" />
+      <created>1749645692906</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1749645692906</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Added logic to change user's password">
+      <option name="closed" value="true" />
+      <created>1749648243986</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1749648243986</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -85,6 +146,11 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Added package-json" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added package-json" />
+    <MESSAGE value="Login and register logic" />
+    <MESSAGE value="Added profile screen" />
+    <MESSAGE value="Added logic for user to follow recipe" />
+    <MESSAGE value="Added logic to change user's password" />
+    <MESSAGE value="Added posting rates to recipe" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added posting rates to recipe" />
   </component>
 </project>

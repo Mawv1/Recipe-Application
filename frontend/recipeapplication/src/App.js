@@ -36,40 +36,46 @@ function App() {
   }, [t]);
 
   return (
-    <div className="App app-bg">
+    <div className="App bg-light">
       <Header />
       <Routes>
         <Route
           path="/"
           element={
-            <main className="main-content">
-              <section className="search-section">
-                <input type="text" className="search-input" placeholder={t('searchPlaceholder')} />
-                <button className="search-btn">{t('searchButton')}</button>
+            <main className="container py-4">
+              <section className="row justify-content-center mb-4">
+                <div className="col-md-8">
+                  <div className="input-group">
+                    <input type="text" className="form-control" placeholder={t('searchPlaceholder')} />
+                    <button className="btn btn-warning">{t('searchButton')}</button>
+                  </div>
+                </div>
               </section>
-              <section>
-                <h2>{t('recipesList')}</h2>
-                <div className="recipes-list">
-                  {loading && <p className="loading-text">{t('loading', 'Ładowanie...')}</p>}
-                  {error && <p className="error-text">{error}</p>}
-                  {!loading && !error && recipes.length === 0 && <p>{t('noRecipes')}</p>}
-                  {!loading && !error && recipes.length > 0 && (
-                    <ul style={{listStyle: 'none', padding: 0}}>
-                      {recipes.map(recipe => (
-                        <li
-                          key={recipe.id}
-                          className="recipe-item"
-                          onClick={() => navigate(`/recipes/${recipe.id}`)}
-                        >
-                          <h3>{recipe.title}</h3>
-                          <p>{recipe.description}</p>
-                          <div className="recipe-meta">
-                            {t('author')}: {recipe.author.firstName} {recipe.author.lastName} | {t('rate')}: {recipe.rate} | {t('estimatedTime')}: {recipe.estimatedTimeToPrepare}
-                          </div>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
+              <section className="row">
+                <div className="col-12">
+                  <h2 className="mb-3">{t('recipesList')}</h2>
+                  <div className="recipes-list">
+                    {loading && <p className="text-warning">{t('loading', 'Ładowanie...')}</p>}
+                    {error && <p className="text-danger">{error}</p>}
+                    {!loading && !error && recipes.length === 0 && <p>{t('noRecipes')}</p>}
+                    {!loading && !error && recipes.length > 0 && (
+                      <ul className="list-unstyled">
+                        {recipes.map(recipe => (
+                          <li
+                            key={recipe.id}
+                            className="recipe-item"
+                            onClick={() => navigate(`/recipes/${recipe.id}`)}
+                          >
+                            <h3>{recipe.title}</h3>
+                            <p>{recipe.description}</p>
+                            <div className="recipe-meta">
+                              {t('author')}: {recipe.author.firstName} {recipe.author.lastName} | {t('rate')}: {recipe.rate} | {t('estimatedTime')}: {recipe.estimatedTimeToPrepare}
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
                 </div>
               </section>
             </main>

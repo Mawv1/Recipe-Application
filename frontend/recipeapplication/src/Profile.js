@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { Container, Row, Col, Form, Button, Card, Alert, Spinner } from 'react-bootstrap';
 import './Profile.css';
 
 function Profile() {
@@ -12,13 +13,11 @@ function Profile() {
   const [authState, setAuthState] = useState('checking');
   const navigate = useNavigate();
 
-  // Stany dla edycji profilu
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [editedUser, setEditedUser] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
   const [notification, setNotification] = useState({ type: '', message: '' });
 
-  // Stan dla zmiany hasła
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [passwordData, setPasswordData] = useState({
     currentPassword: '',
@@ -26,12 +25,8 @@ function Profile() {
     confirmPassword: ''
   });
 
-  // Funkcja do pobierania ulubionych przepisów bezpośrednio z API
   const fetchFollowedRecipes = async (userId, token) => {
     try {
-      // Pobierz ulubione przepisy z API
-      console.log('Próbuję pobrać ulubione przepisy z /api/v1/users/me/followed-recipes');
-
       const recipesResponse = await fetch(
         'http://localhost:8080/api/v1/users/me/followed-recipes',
         {
@@ -42,16 +37,10 @@ function Profile() {
         }
       );
 
-      console.log('Status odpowiedzi z /users/me/followed-recipes:', recipesResponse.status);
-
       if (recipesResponse.ok) {
         const data = await recipesResponse.json();
-        console.log('Pobrano ulubione przepisy z /users/me/followed-recipes:', data);
         return data.content || data;
       }
-
-      // Jako alternatywę, spróbujmy użyć endpointu z ID użytkownika
-      console.log(`Próbuję pobrać przepisy z /api/v1/users/${userId}/followed-recipes`);
 
       const fallbackResponse = await fetch(
         `http://localhost:8080/api/v1/users/${userId}/followed-recipes`,
@@ -63,17 +52,12 @@ function Profile() {
         }
       );
 
-      console.log('Status odpowiedzi z /users/id/followed-recipes:', fallbackResponse.status);
-
       if (fallbackResponse.ok) {
         const data = await fallbackResponse.json();
-        console.log('Pobrano przepisy z /users/id/followed-recipes:', data);
         return data.content || data;
       }
 
-      // Jeśli nic nie znaleźliśmy, zwróć pustą tablicę
       return [];
-
     } catch (err) {
       console.error('Błąd podczas pobierania ulubionych przepisów:', err);
       return [];
@@ -83,7 +67,6 @@ function Profile() {
   useEffect(() => {
     let isMounted = true;
 
-    // Funkcja sprawdzająca czy użytkownik jest zalogowany i pobierająca jego dane
     const checkAuthAndLoadProfile = async () => {
       try {
         const token = localStorage.getItem('token');
@@ -103,18 +86,15 @@ function Profile() {
 
           if (parts.length === 3) {
             try {
-              // Dekodowanie JWT
               const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
               const padding = '='.repeat((4 - base64.length % 4) % 4);
               const decodedPayload = JSON.parse(atob(base64 + padding));
 
-              // Użyj emaila z tokena
               const email = decodedPayload.sub;
               if (!email) {
                 throw new Error("Brak emaila w tokenie");
               }
 
-              // Pobierz dane użytkownika po emailu
               const userResponse = await fetch(
                 `http://localhost:8080/api/v1/users/email/${encodeURIComponent(email)}`,
                 { headers: { 'Authorization': `Bearer ${token}` } }
@@ -131,11 +111,10 @@ function Profile() {
               const userData = await userResponse.json();
               if (isMounted) {
                 setUser(userData);
-                setEditedUser(userData); // Inicjalizacja stanu do edycji
+                setEditedUser(userData);
                 setAuthState('authenticated');
               }
 
-              // Pobierz ulubione przepisy
               const followedRecipes = await fetchFollowedRecipes(userData.id, token);
               if (isMounted) {
                 setRecipes(followedRecipes);
@@ -177,7 +156,6 @@ function Profile() {
     };
   }, [navigate, t]);
 
-  // Funkcja odświeżająca listę ulubionych przepisów
   const refreshFollowedRecipes = async () => {
     if (!user) return;
 
@@ -188,7 +166,6 @@ function Profile() {
     }
 
     try {
-      // Pobierz świeże dane
       const followedRecipes = await fetchFollowedRecipes(user.id, token);
       setRecipes(followedRecipes);
       showNotification('success', t('recipesRefreshed', 'Lista przepisów została odświeżona!'));
@@ -205,14 +182,13 @@ function Profile() {
     navigate('/login');
   };
 
-  // Obsługa edycji profilu
   const handleProfileEdit = () => {
     setIsEditingProfile(true);
   };
 
   const handleCancelEdit = () => {
     setIsEditingProfile(false);
-    setEditedUser(user); // Przywrócenie oryginalnych wartości
+    setEditedUser(user);
   };
 
   const handleInputChange = (e) => {
@@ -231,7 +207,6 @@ function Profile() {
     }));
   };
 
-  // Funkcja do zapisywania zmian w profilu
   const handleSaveProfile = async () => {
     if (!user || !editedUser) return;
 
@@ -253,22 +228,21 @@ function Profile() {
       });
 
       if (!response.ok) {
-        throw new Error(`Błąd podczas aktualizacji profilu: ${response.status}`);
+        throw new Error(`${t('profileUpdateError')} ${response.status}`);
       }
 
       const updatedUser = await response.json();
       setUser(updatedUser);
       setIsEditingProfile(false);
-      showNotification('success', t('profileUpdated', 'Profil został zaktualizowany pomyślnie!'));
+      showNotification('success', t('profileUpdated'));
     } catch (err) {
-      console.error('Błąd podczas aktualizacji profilu:', err);
-      showNotification('error', err.message || t('profileUpdateError', 'Wystąpił błąd podczas aktualizacji profilu.'));
+      console.error(`${t('profileUpdateError')}:`, err);
+      showNotification('error', err.message || t('profileUpdateError'));
     } finally {
       setIsSaving(false);
     }
   };
 
-  // Funkcja do zmiany hasła
   const handleChangePassword = async () => {
     if (passwordData.newPassword !== passwordData.confirmPassword) {
       showNotification('error', t('passwordsDoNotMatch', 'Nowe hasło i potwierdzenie hasła nie są identyczne!'));
@@ -279,21 +253,15 @@ function Profile() {
     const token = localStorage.getItem('token');
 
     try {
-      // Poprawne kodowanie parametrów w URL
       const oldPasswordEncoded = encodeURIComponent(passwordData.currentPassword);
       const newPasswordEncoded = encodeURIComponent(passwordData.newPassword);
 
       const endpoint = `http://localhost:8080/api/v1/users/${user.id}/password?oldPassword=${oldPasswordEncoded}&newPassword=${newPasswordEncoded}`;
-      console.log('Wysyłam żądanie zmiany hasła:', endpoint.replace(/oldPassword=.*&newPassword=/, 'oldPassword=[HIDDEN]&newPassword='));
 
-      // Upewnij się, że nagłówki są poprawne
       const headers = {
         'Authorization': `Bearer ${token}`,
         'Accept': 'application/json'
       };
-
-      // Dla debugowania - sprawdź, czy token jest prawidłowy
-      console.log('Token JWT (pierwsze 20 znaków):', token ? token.substring(0, 20) + '...' : 'brak tokenu');
 
       const response = await fetch(endpoint, {
         method: 'PUT',
@@ -301,25 +269,16 @@ function Profile() {
         credentials: 'include'
       });
 
-      console.log('Status odpowiedzi z serwera:', response.status);
-
       if (!response.ok) {
         let errorMessage = '';
 
-        // Próba pobrania komunikatu błędu z odpowiedzi
         try {
           const errorData = await response.json();
           errorMessage = errorData.message || '';
-          console.log('Odpowiedź z serwera:', errorData);
         } catch (jsonError) {
-          console.log('Nie udało się sparsować odpowiedzi jako JSON:', jsonError);
-          // Próba pobrania tekstu odpowiedzi
           try {
             errorMessage = await response.text();
-            console.log('Odpowiedź tekstowa z serwera:', errorMessage);
-          } catch (textError) {
-            console.log('Nie udało się pobrać tekstu odpowiedzi:', textError);
-          }
+          } catch (textError) {}
         }
 
         if (response.status === 403) {
@@ -344,7 +303,6 @@ function Profile() {
     }
   };
 
-  // Funkcja do wyświetlania powiadomień
   const showNotification = (type, message) => {
     setNotification({ type, message });
     setTimeout(() => {
@@ -353,240 +311,263 @@ function Profile() {
   };
 
   if (loading) {
-    return <div className="loading-text">{t('loading', 'Ładowanie profilu...')}</div>;
+    return (
+      <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: '300px' }}>
+        <Spinner animation="border" role="status">
+          <span className="visually-hidden">{t('loading')}</span>
+        </Spinner>
+      </Container>
+    );
   }
 
   if (error) {
     return (
-      <div className="auth-container">
-        <div className="error-text">{error}</div>
-        <button className="auth-form button" onClick={() => navigate('/login')}>
-          {t('backToLogin', 'Wróć do logowania')}
-        </button>
-      </div>
+      <Container className="py-5">
+        <Alert variant="danger">{error}</Alert>
+        <Button variant="primary" onClick={() => navigate('/login')}>
+          {t('backToLogin')}
+        </Button>
+      </Container>
     );
   }
 
   if (authState !== 'authenticated' || !user) {
     return (
-      <div className="auth-container">
-        <div className="error-text">{t('profileNotAvailable', 'Profil niedostępny. Zaloguj się, aby kontynuować.')}</div>
-        <button className="auth-form button" onClick={() => navigate('/login')}>
-          {t('login', 'Zaloguj się')}
-        </button>
-      </div>
+      <Container className="py-5">
+        <Alert variant="warning">{t('profileNotAvailable')}</Alert>
+        <Button variant="primary" onClick={() => navigate('/login')}>
+          {t('login')}
+        </Button>
+      </Container>
     );
   }
 
   return (
-    <div className="profile-container">
-      <div className="profile-header">
-        <h2 className="profile-title">{t('profile', 'Profil użytkownika')}</h2>
-        <div className="profile-actions">
-          <button className="profile-button secondary" onClick={refreshFollowedRecipes}>
-            {t('refreshRecipes', 'Odśwież przepisy')}
-          </button>
-          <button className="profile-button danger" onClick={handleLogout}>
-            {t('logout', 'Wyloguj się')}
-          </button>
-        </div>
-      </div>
+    <Container className="py-4">
+      <Row className="mb-4 align-items-center">
+        <Col>
+          <h2>{t('profile')}</h2>
+        </Col>
+        <Col xs="auto" className="d-flex gap-2">
+          <Button variant="outline-secondary" onClick={refreshFollowedRecipes}>
+            {t('refreshRecipes')}
+          </Button>
+          <Button variant="danger" onClick={handleLogout}>
+            {t('logout')}
+          </Button>
+        </Col>
+      </Row>
 
       {notification.message && (
-        <div className={`notification ${notification.type}`}>
+        <Alert variant={notification.type === 'success' ? 'success' : 'danger'}
+               dismissible
+               onClose={() => setNotification({ type: '', message: '' })}>
           {notification.message}
-        </div>
+        </Alert>
       )}
 
-      <div className="profile-sections">
-        <div className="profile-section">
-          <div className="section-header">
-            <h3 className="section-title">{t('personalInfo', 'Dane osobowe')}</h3>
-            {!isEditingProfile && (
-              <button className="profile-button" onClick={handleProfileEdit}>
-                {t('edit', 'Edytuj')}
-              </button>
-            )}
-          </div>
-
-          {!isEditingProfile ? (
-            <div className="section-content">
-              <div className="info-row">
-                <div className="info-label">{t('firstName', 'Imię')}:</div>
-                <div className="info-value">{user.firstName}</div>
-              </div>
-              <div className="info-row">
-                <div className="info-label">{t('lastName', 'Nazwisko')}:</div>
-                <div className="info-value">{user.lastName}</div>
-              </div>
-              <div className="info-row">
-                <div className="info-label">{t('email', 'Email')}:</div>
-                <div className="info-value">{user.email}</div>
-              </div>
-
-              <button
-                className="profile-button secondary"
-                style={{ marginTop: '20px' }}
-                onClick={() => setIsChangingPassword(true)}
-              >
-                {t('changePassword', 'Zmień hasło')}
-              </button>
-            </div>
-          ) : (
-            <div className="edit-form">
-              <div className="form-group">
-                <label htmlFor="firstName">{t('firstName', 'Imię')}</label>
-                <input
-                  type="text"
-                  id="firstName"
-                  name="firstName"
-                  className="form-control"
-                  value={editedUser.firstName || ''}
-                  onChange={handleInputChange}
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="lastName">{t('lastName', 'Nazwisko')}</label>
-                <input
-                  type="text"
-                  id="lastName"
-                  name="lastName"
-                  className="form-control"
-                  value={editedUser.lastName || ''}
-                  onChange={handleInputChange}
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="email">{t('email', 'Email')}</label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  className="form-control"
-                  value={editedUser.email || ''}
-                  onChange={handleInputChange}
-                />
-              </div>
-
-              <div className="form-actions">
-                <button
-                  className="profile-button secondary"
-                  onClick={handleCancelEdit}
-                  disabled={isSaving}
-                >
-                  {t('cancel', 'Anuluj')}
-                </button>
-                <button
-                  className="profile-button"
-                  onClick={handleSaveProfile}
-                  disabled={isSaving}
-                >
-                  {isSaving ? <span className="loading-spinner"></span> : t('save', 'Zapisz')}
-                </button>
-              </div>
-            </div>
-          )}
-
-          {isChangingPassword && (
-            <div className="edit-form">
-              <h4>{t('changePassword', 'Zmiana hasła')}</h4>
-              <div className="form-group">
-                <label htmlFor="currentPassword">{t('currentPassword', 'Obecne hasło')}</label>
-                <input
-                  type="password"
-                  id="currentPassword"
-                  name="currentPassword"
-                  className="form-control"
-                  value={passwordData.currentPassword}
-                  onChange={handlePasswordInputChange}
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="newPassword">{t('newPassword', 'Nowe hasło')}</label>
-                <input
-                  type="password"
-                  id="newPassword"
-                  name="newPassword"
-                  className="form-control"
-                  value={passwordData.newPassword}
-                  onChange={handlePasswordInputChange}
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="confirmPassword">{t('confirmPassword', 'Potwierdź nowe hasło')}</label>
-                <input
-                  type="password"
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  className="form-control"
-                  value={passwordData.confirmPassword}
-                  onChange={handlePasswordInputChange}
-                />
-              </div>
-
-              <div className="form-actions">
-                <button
-                  className="profile-button secondary"
-                  onClick={() => setIsChangingPassword(false)}
-                  disabled={isSaving}
-                >
-                  {t('cancel', 'Anuluj')}
-                </button>
-                <button
-                  className="profile-button"
-                  onClick={handleChangePassword}
-                  disabled={isSaving || !passwordData.currentPassword || !passwordData.newPassword || !passwordData.confirmPassword}
-                >
-                  {isSaving ? <span className="loading-spinner"></span> : t('changePassword', 'Zmień hasło')}
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-
-        <div className="profile-section">
-          <div className="section-header">
-            <h3 className="section-title">{t('followedRecipes', 'Ulubione przepisy')}</h3>
-          </div>
-
-          {recipes.length === 0 ? (
-            <p>{t('noFollowedRecipes', 'Brak obserwowanych przepisów.')}</p>
-          ) : (
-            <div className="recipes-grid">
-              {recipes.map(recipe => (
-                <div
-                  key={recipe.id || recipe.recipeId}
-                  className="recipe-card"
-                  onClick={() => navigate(`/recipes/${recipe.recipeId}`)}
-                >
-                  <div
-                    className="recipe-image"
-                    style={{ backgroundColor: '#f0f0f0' }} // Placeholder dla obrazka
-                  />
-                  <div className="recipe-body">
-                    <h4 className="recipe-title">{recipe.title || recipe.recipeTitle}</h4>
-                    {recipe.description && (
-                      <p className="recipe-description">
-                        {recipe.description.length > 100
-                          ? `${recipe.description.substring(0, 100)}...`
-                          : recipe.description}
-                      </p>
-                    )}
-                    <div className="recipe-footer">
-                      <span>{t('clickForDetails', 'Kliknij, aby zobaczyć szczegóły')}</span>
-                    </div>
-                  </div>
+      <Row className="mb-4">
+        <Col md={12} lg={6}>
+          <Card className="shadow-sm mb-4">
+            <Card.Header className="d-flex justify-content-between align-items-center">
+              <h3 className="h5 mb-0">{t('personalInfo')}</h3>
+              {!isEditingProfile && (
+                <Button variant="primary" size="sm" onClick={handleProfileEdit}>
+                  {t('edit')}
+                </Button>
+              )}
+            </Card.Header>
+            <Card.Body>
+              {!isEditingProfile ? (
+                <div>
+                  <Row className="mb-2">
+                    <Col sm={4} className="fw-bold">{t('firstName')}:</Col>
+                    <Col sm={8}>{user.firstName}</Col>
+                  </Row>
+                  <Row className="mb-2">
+                    <Col sm={4} className="fw-bold">{t('lastName')}:</Col>
+                    <Col sm={8}>{user.lastName}</Col>
+                  </Row>
+                  <Row className="mb-3">
+                    <Col sm={4} className="fw-bold">{t('email')}:</Col>
+                    <Col sm={8}>{user.email}</Col>
+                  </Row>
+                  <Button
+                    variant="outline-secondary"
+                    className="mt-2"
+                    onClick={() => setIsChangingPassword(true)}
+                  >
+                    {t('changePassword')}
+                  </Button>
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
+              ) : (
+                <Form>
+                  <Form.Group className="mb-3">
+                    <Form.Label>{t('firstName')}</Form.Label>
+                    <Form.Control
+                      type="text"
+                      id="firstName"
+                      name="firstName"
+                      value={editedUser.firstName || ''}
+                      onChange={handleInputChange}
+                    />
+                  </Form.Group>
+
+                  <Form.Group className="mb-3">
+                    <Form.Label>{t('lastName')}</Form.Label>
+                    <Form.Control
+                      type="text"
+                      id="lastName"
+                      name="lastName"
+                      value={editedUser.lastName || ''}
+                      onChange={handleInputChange}
+                    />
+                  </Form.Group>
+
+                  <Form.Group className="mb-3">
+                    <Form.Label>{t('email')}</Form.Label>
+                    <Form.Control
+                      type="email"
+                      id="email"
+                      name="email"
+                      value={editedUser.email || ''}
+                      onChange={handleInputChange}
+                    />
+                  </Form.Group>
+
+                  <div className="d-flex gap-2 justify-content-end">
+                    <Button
+                      variant="secondary"
+                      onClick={handleCancelEdit}
+                      disabled={isSaving}
+                    >
+                      {t('cancel')}
+                    </Button>
+                    <Button
+                      variant="primary"
+                      onClick={handleSaveProfile}
+                      disabled={isSaving}
+                    >
+                      {isSaving ? (
+                        <>
+                          <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
+                          <span className="ms-1">{t('saving', 'Zapisywanie...')}</span>
+                        </>
+                      ) : (
+                        t('save')
+                      )}
+                    </Button>
+                  </div>
+                </Form>
+              )}
+
+              {isChangingPassword && (
+                <div className="mt-4 pt-4 border-top">
+                  <h4 className="h5 mb-3">{t('changePassword')}</h4>
+                  <Form>
+                    <Form.Group className="mb-3">
+                      <Form.Label>{t('currentPassword')}</Form.Label>
+                      <Form.Control
+                        type="password"
+                        id="currentPassword"
+                        name="currentPassword"
+                        value={passwordData.currentPassword}
+                        onChange={handlePasswordInputChange}
+                      />
+                    </Form.Group>
+
+                    <Form.Group className="mb-3">
+                      <Form.Label>{t('newPassword')}</Form.Label>
+                      <Form.Control
+                        type="password"
+                        id="newPassword"
+                        name="newPassword"
+                        value={passwordData.newPassword}
+                        onChange={handlePasswordInputChange}
+                      />
+                    </Form.Group>
+
+                    <Form.Group className="mb-3">
+                      <Form.Label>{t('confirmPassword')}</Form.Label>
+                      <Form.Control
+                        type="password"
+                        id="confirmPassword"
+                        name="confirmPassword"
+                        value={passwordData.confirmPassword}
+                        onChange={handlePasswordInputChange}
+                      />
+                    </Form.Group>
+
+                    <div className="d-flex gap-2 justify-content-end">
+                      <Button
+                        variant="secondary"
+                        onClick={() => setIsChangingPassword(false)}
+                        disabled={isSaving}
+                      >
+                        {t('cancel')}
+                      </Button>
+                      <Button
+                        variant="primary"
+                        onClick={handleChangePassword}
+                        disabled={isSaving || !passwordData.currentPassword || !passwordData.newPassword || !passwordData.confirmPassword}
+                      >
+                        {isSaving ? (
+                          <>
+                            <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
+                            <span className="ms-1">{t('saving', 'Zapisywanie...')}</span>
+                          </>
+                        ) : (
+                          t('changePassword')
+                        )}
+                      </Button>
+                    </div>
+                  </Form>
+                </div>
+              )}
+            </Card.Body>
+          </Card>
+        </Col>
+
+        <Col md={12} lg={6}>
+          <Card className="shadow-sm">
+            <Card.Header>
+              <h3 className="h5 mb-0">{t('followedRecipes')}</h3>
+            </Card.Header>
+            <Card.Body>
+              {recipes.length === 0 ? (
+                <Alert variant="info">{t('noFollowedRecipes')}</Alert>
+              ) : (
+                <Row xs={1} md={1} className="g-4">
+                  {recipes.map(recipe => (
+                    <Col key={recipe.id || recipe.recipeId}>
+                      <Card
+                        className="h-100 recipe-card cursor-pointer"
+                        onClick={() => navigate(`/recipes/${recipe.recipeId}`)}
+                      >
+                        <div className="bg-light" style={{ height: '100px' }} />
+                        <Card.Body>
+                          <Card.Title>{recipe.title || recipe.recipeTitle}</Card.Title>
+                          {recipe.description && (
+                            <Card.Text>
+                              {recipe.description.length > 100
+                                ? `${recipe.description.substring(0, 100)}...`
+                                : recipe.description}
+                            </Card.Text>
+                          )}
+                        </Card.Body>
+                        <Card.Footer className="text-muted">
+                          <small>{t('clickForDetails')}</small>
+                        </Card.Footer>
+                      </Card>
+                    </Col>
+                  ))}
+                </Row>
+              )}
+            </Card.Body>
+          </Card>
+        </Col>
+      </Row>
+    </Container>
   );
 }
 

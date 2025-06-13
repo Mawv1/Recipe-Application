@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { Container, Row, Col, Form, Button, Alert, Card } from 'react-bootstrap';
 import './Auth.css';
 
 function Register() {
@@ -32,46 +33,68 @@ function Register() {
   };
 
   return (
-    <div className="auth-container">
-      <h2>{t('register')}</h2>
-      <form onSubmit={handleSubmit} className="auth-form">
-        <input
-          type="text"
-          placeholder={t('firstName', 'Imię')}
-          value={firstName}
-          onChange={e => setFirstName(e.target.value)}
-          required
-        />
-        <input
-          type="text"
-          placeholder={t('lastName', 'Nazwisko')}
-          value={lastName}
-          onChange={e => setLastName(e.target.value)}
-          required
-        />
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={e => setEmail(e.target.value)}
-          required
-        />
-        <input
-          type="password"
-          placeholder={t('password', 'Hasło')}
-          value={password}
-          onChange={e => setPassword(e.target.value)}
-          required
-        />
-        {error && <div className="error-text">{error}</div>}
-        {success && <div className="success-text">{t('registerSuccess', 'Rejestracja udana!')}</div>}
-        <button type="submit">{t('register')}</button>
-      </form>
-      <p>
-        {t('haveAccount', 'Masz już konto?')}{' '}
-        <span className="auth-link" onClick={() => navigate('/login')}>{t('login')}</span>
-      </p>
-    </div>
+    <Container className="my-4">
+      <Row className="justify-content-center">
+        <Col sm={12} md={8} lg={6} className="card-container">
+          <Card className="shadow-sm">
+            <Card.Body className="p-4">
+              <h2 className="text-center mb-4">{t('register')}</h2>
+              {error && <Alert variant="danger">{error}</Alert>}
+              {success && <Alert variant="success">{t('registrationSuccess', 'Rejestracja zakończona pomyślnie! Przekierowanie do strony logowania...')}</Alert>}
+              <Form onSubmit={handleSubmit}>
+                <Form.Group controlId="formFirstName">
+                  <Form.Label>{t('firstName', 'Imię')}</Form.Label>
+                  <Form.Control
+                    type="text"
+                    placeholder={t('firstName', 'Imię')}
+                    value={firstName}
+                    onChange={e => setFirstName(e.target.value)}
+                    required
+                    className="mb-3"
+                  />
+                </Form.Group>
+                <Form.Group controlId="formLastName">
+                  <Form.Label>{t('lastName', 'Nazwisko')}</Form.Label>
+                  <Form.Control
+                    type="text"
+                    placeholder={t('lastName', 'Nazwisko')}
+                    value={lastName}
+                    onChange={e => setLastName(e.target.value)}
+                    required
+                    className="mb-3"
+                  />
+                </Form.Group>
+                <Form.Group controlId="formEmail">
+                  <Form.Label>Email</Form.Label>
+                  <Form.Control
+                    type="email"
+                    placeholder="Email"
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                    required
+                    className="mb-3"
+                  />
+                </Form.Group>
+                <Form.Group controlId="formPassword">
+                  <Form.Label>{t('password', 'Hasło')}</Form.Label>
+                  <Form.Control
+                    type="password"
+                    placeholder={t('password', 'Hasło')}
+                    value={password}
+                    onChange={e => setPassword(e.target.value)}
+                    required
+                    className="mb-4"
+                  />
+                </Form.Group>
+                <Button variant="warning" type="submit" className="w-100 py-2">
+                  {t('register', 'Zarejestruj się')}
+                </Button>
+              </Form>
+            </Card.Body>
+          </Card>
+        </Col>
+      </Row>
+    </Container>
   );
 }
 

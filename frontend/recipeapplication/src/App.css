@@ -1,5 +1,8 @@
 .App {
   text-align: center;
+  min-height: 100vh; /* Zapewnia minimalna wysokosc na cala wysokosc ekranu */
+  display: flex;
+  flex-direction: column; /* Uklad kolumnowy */
 }
 
 .App-logo {
@@ -14,23 +17,13 @@
 }
 
 .App-header {
-  background: #fff;
   box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-  padding: 0;
-  margin-bottom: 32px;
-  min-height: unset;
-  display: block;
-  font-size: 1rem;
-  color: #2d3748;
+  margin-bottom: 2rem;
 }
 
+/* Navbar wykorzystuje teraz klasy Bootstrap */
 .navbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 12px 24px;
+  padding: 0.75rem 1.5rem;
 }
 
 .logo {
@@ -40,44 +33,20 @@
   letter-spacing: 1px;
 }
 
-.nav-links {
-  display: flex;
-  gap: 24px;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.nav-links li a {
-  text-decoration: none;
+/* Zamiast własnych nav-links używamy teraz klas Bootstrapa */
+.nav-links .nav-item .nav-link {
   color: #2d3748;
   font-weight: 500;
-  font-size: 1rem;
   transition: color 0.2s;
 }
 
-.nav-links li a:hover {
+.nav-links .nav-item .nav-link:hover {
   color: #3182ce;
 }
 
-.lang-switcher {
-  display: flex;
-  gap: 8px;
-}
-
+/* Lang-switcher będzie używał btn-group z Bootstrapa */
 .lang-switcher button {
-  background: #f7fafc;
-  border: 1px solid #cbd5e1;
-  border-radius: 4px;
-  padding: 4px 12px;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: background 0.2s, border 0.2s;
-}
-
-.lang-switcher button:hover {
-  background: #e2e8f0;
-  border-color: #3182ce;
+  background: transparent;
 }
 
 .hero {
@@ -101,13 +70,21 @@
 }
 
 main {
-  max-width: 1200px;
+  flex: 1 0 auto; /* Pozwala głównej treści na rozciąganie się */
+  padding: 2rem 15px;
+  width: 100%;
+  max-width: 1200px; /* Jednolita maksymalna szerokość dla wszystkich widoków */
   margin: 0 auto;
-  padding: 32px 24px 48px 24px;
   background: #fff;
   border-radius: 12px;
   min-height: 60vh;
   box-shadow: 0 2px 16px rgba(0,0,0,0.04);
+}
+
+.card-container {
+  width: 100%;
+  max-width: 800px; /* Szersza, jednolita szerokość dla kart */
+  margin: 0 auto;
 }
 
 @media (max-width: 800px) {
@@ -140,7 +117,7 @@ main {
   }
 }
 
-/* Kolory inspirowane kuchnią: zielenie, beże, pomarańcze, jasne tło */
+/* Usuwamy zbędne style i łączymy z klasami Bootstrapa */
 html, body, #root, .App {
   height: 100%;
   margin: 0;
@@ -159,17 +136,19 @@ html, body, #root, .App {
   max-width: 900px;
   margin: 0 auto;
   padding: 32px 16px 24px 16px;
+  min-height: 100vh;
 }
 
+/* Stopka z klasami Bootstrap */
 footer {
   flex-shrink: 0;
   background: #e6f2d6;
   color: #3d3d3d;
   border-top: 1px solid #d1e7c6;
-  font-size: 1rem;
+  width: 100%;
   padding: 1.2rem 0 1rem 0;
   text-align: center;
-
+  margin-top: auto; /* Przesuwa footer na dół jeśli jest mało treści */
 }
 
 .search-section {
@@ -216,16 +195,18 @@ footer {
   margin-top: 16px;
 }
 
+/* recipe-item będziemy używać z klasami Bootstrap */
 .recipe-item {
   background: #fff;
   border-radius: 10px;
   box-shadow: 0 2px 8px rgba(186, 230, 153, 0.08);
-  margin-bottom: 24px;
+  margin-bottom: 1.5rem;
   text-align: left;
   border-bottom: 2px solid #e6f2d6;
-  padding: 18px 20px 16px 20px;
+  padding: 1.2rem;
   cursor: pointer;
-  transition: box-shadow 0.2s, border 0.2s;
+  transition: all 0.2s;
+  width: 100%; /* Pełna szerokość względem kontenera */
 }
 
 .recipe-item:hover {
@@ -234,13 +215,8 @@ footer {
 }
 
 .recipe-item h3 {
-  margin: 0 0 8px 0;
+  margin: 0 0 0.5rem 0;
   color: #5c940d;
-}
-
-.recipe-item p {
-  margin: 8px 0 8px 0;
-  color: #495057;
 }
 
 .recipe-meta {

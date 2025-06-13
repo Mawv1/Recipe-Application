@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { Container, Row, Col, Form, Button, Alert, Card } from 'react-bootstrap';
 import './Auth.css';
 
 function Login() {
@@ -20,12 +21,12 @@ function Login() {
         body: JSON.stringify({ email, password })
       });
 
-      if (!res.ok) throw new Error('Błędny email lub hasło');
+      if (!res.ok) throw new Error(t('invalidEmailOrPassword'));
 
       const data = await res.json();
 
       if (!data.access_token) {
-        throw new Error('Serwer nie zwrócił tokena uwierzytelniającego');
+        throw new Error(t('noAuthToken'));
       }
 
       // Wyczyść wszelkie istniejące tokeny przed ustawieniem nowego
@@ -34,7 +35,7 @@ function Login() {
       // Zapisz token w localStorage
       localStorage.setItem('token', data.access_token);
 
-      // Zapisz też refresh token jeśli istnieje
+      // Zapisz te�� refresh token jeśli istnieje
       if (data.refresh_token) {
         localStorage.setItem('refresh_token', data.refresh_token);
       }
@@ -50,31 +51,45 @@ function Login() {
   };
 
   return (
-    <div className="auth-container">
-      <h2>{t('login')}</h2>
-      <form onSubmit={handleSubmit} className="auth-form">
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={e => setEmail(e.target.value)}
-          required
-        />
-        <input
-          type="password"
-          placeholder={t('password', 'Hasło')}
-          value={password}
-          onChange={e => setPassword(e.target.value)}
-          required
-        />
-        {error && <div className="error-text">{error}</div>}
-        <button type="submit">{t('login')}</button>
-      </form>
-      <p>
-        {t('noAccount', 'Nie masz konta?')}{' '}
-        <span className="auth-link" onClick={() => navigate('/register')}>{t('register')}</span>
-      </p>
-    </div>
+    <Container className="my-4">
+      <Row className="justify-content-center">
+        <Col sm={12} md={8} lg={6} className="card-container">
+          <Card className="shadow-sm">
+            <Card.Body className="p-4">
+              <h2 className="text-center mb-4">{t('login')}</h2>
+              {error && <Alert variant="danger">{error}</Alert>}
+              <Form onSubmit={handleSubmit}>
+                <Form.Group controlId="formEmail">
+                  <Form.Label>Email</Form.Label>
+                  <Form.Control
+                    type="email"
+                    placeholder="Email"
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                    required
+                    className="mb-3"
+                  />
+                </Form.Group>
+                <Form.Group controlId="formPassword">
+                  <Form.Label>{t('password')}</Form.Label>
+                  <Form.Control
+                    type="password"
+                    placeholder={t('password')}
+                    value={password}
+                    onChange={e => setPassword(e.target.value)}
+                    required
+                    className="mb-4"
+                  />
+                </Form.Group>
+                <Button variant="warning" type="submit" className="w-100 py-2">
+                  {t('login')}
+                </Button>
+              </Form>
+            </Card.Body>
+          </Card>
+        </Col>
+      </Row>
+    </Container>
   );
 }
 
