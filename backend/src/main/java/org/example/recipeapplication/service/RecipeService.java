@@ -78,6 +78,8 @@ public class RecipeService {
                 recipe.getTitle(),
                 recipe.getDescription(),
                 recipe.getRating(),
+                recipe.getRatingCount() != null ? recipe.getRatingCount() : 0,
+                recipe.getFavoritesCount() != null ? recipe.getFavoritesCount() : 0,
                 recipe.getEstimatedTimeToPrepare(),
                 new UserResponseDTO(
                         recipe.getAuthor().getId(),

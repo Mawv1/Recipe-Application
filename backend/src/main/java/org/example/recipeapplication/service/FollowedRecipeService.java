@@ -46,6 +46,14 @@ public class FollowedRecipeService {
         followedRecipe.setUser(user);
         followedRecipe.setRecipe(recipe);
 
+        // Zwiększ licznik polubień przepisu
+        if (recipe.getFavoritesCount() == null) {
+            recipe.setFavoritesCount(1);
+        } else {
+            recipe.setFavoritesCount(recipe.getFavoritesCount() + 1);
+        }
+        recipeRepository.save(recipe);
+
         FollowedRecipe savedFollowed = followedRecipeRepository.save(followedRecipe);
         return mapToDTO(savedFollowed);
     }
@@ -103,7 +111,21 @@ public class FollowedRecipeService {
         Recipe recipe = recipeRepository.findById(recipeId)
                 .orElseThrow(() -> new EntityNotFoundException("Przepis nie znaleziony"));
 
-        followedRecipeRepository.deleteByUserAndRecipe(user, recipe);
+        // Sprawdzamy, czy użytkownik faktycznie obserwował ten przepis
+        boolean wasFollowed = followedRecipeRepository.existsByUserAndRecipe(user, recipe);
+
+        if (wasFollowed) {
+            // Zmniejszamy licznik polubień tylko jeśli faktycznie usuwamy obserwację
+            if (recipe.getFavoritesCount() != null && recipe.getFavoritesCount() > 0) {
+                recipe.setFavoritesCount(recipe.getFavoritesCount() - 1);
+                recipeRepository.save(recipe);
+                log.info("Zmniejszono licznik polubień dla przepisu {} do {}", recipeId, recipe.getFavoritesCount());
+            }
+
+            // Usuwamy obserwację
+            followedRecipeRepository.deleteByUserAndRecipe(user, recipe);
+            log.info("Usunięto przepis {} z obserwowanych dla użytkownika {}", recipeId, user.getId());
+        }
     }
 
     /**

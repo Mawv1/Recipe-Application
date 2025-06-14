@@ -85,11 +85,18 @@ public class RatingService {
         Recipe recipe = recipeRepository.findById(recipeId)
                 .orElseThrow(() -> new EntityNotFoundException("Przepis nie znaleziony"));
 
+        // Pobierz liczbę ocen dla przepisu
+        int ratingCount = ratingRepository.findByRecipeId(recipeId).size();
+
+        // Aktualizuj rating i licznik ocen
         if (averageRating != null) {
             recipe.setRating(averageRating.floatValue());
+            recipe.setRatingCount(ratingCount);
         } else {
             recipe.setRating(null);
+            recipe.setRatingCount(0);
         }
+
         recipeRepository.save(recipe);
     }
 

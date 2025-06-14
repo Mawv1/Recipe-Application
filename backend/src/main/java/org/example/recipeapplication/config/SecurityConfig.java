@@ -86,6 +86,8 @@ public class SecurityConfig {
                                 .authenticated()
                                 .requestMatchers(PUT,"/api/v1/users/*/password")
                                 .authenticated()
+                                .requestMatchers(POST, "/api/v1/recipes/*/rate")
+                                .authenticated()
 
                                 // Pozostałe reguły
                                 .requestMatchers(POST, "/api/v1/recipes/add").hasAuthority(String.valueOf(Permission.RECIPE_CREATE))

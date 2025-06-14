@@ -72,6 +72,46 @@ function RecipeDetails() {
   const [ratingError, setRatingError] = useState(null);
   const navigate = useNavigate();
 
+  // Nowa funkcja do pobierania oceny użytkownika
+  const fetchUserRating = useCallback((token) => {
+    if (!isAuthenticated || !id || !token) return;
+
+    console.log('[RecipeDetails] Pobieranie zapisanej oceny użytkownika');
+
+    fetch(`http://localhost:8080/api/v1/recipes/${id}/rating`, {
+      headers: {
+        'Authorization': 'Bearer ' + token,
+        'Content-Type': 'application/json'
+      },
+      method: 'GET'
+    })
+    .then(res => {
+      if (res.status === 204) {
+        // Brak oceny (204 No Content)
+        console.log('[RecipeDetails] Użytkownik nie ocenił jeszcze tego przepisu');
+        return null;
+      }
+      if (res.status === 401 || res.status === 403) {
+        console.log('[RecipeDetails] Brak uprawnień do pobrania oceny użytkownika (kod:', res.status, ')');
+        // Nie traktujemy tego jako błąd - użytkownik może po prostu nie mieć dostępu do swoich ocen
+        return null;
+      }
+      if (!res.ok) {
+        throw new Error('Nie udało się pobrać oceny użytkownika');
+      }
+      return res.json();
+    })
+    .then(data => {
+      if (data) {
+        console.log('[RecipeDetails] Pobrano ocenę użytkownika:', data.value);
+        setUserRating(data.value);
+      }
+    })
+    .catch(err => {
+      console.error('[RecipeDetails] Błąd podczas pobierania oceny użytkownika:', err);
+    });
+  }, [id, isAuthenticated]);
+
   const checkFollowStatus = useCallback((token) => {
     if (!isAuthenticated || !id || !token) return;
 
@@ -137,8 +177,9 @@ function RecipeDetails() {
     if (isAuthenticated && id) {
       const token = localStorage.getItem('token');
       checkFollowStatus(token);
+      fetchUserRating(token);
     }
-  }, [id, isAuthenticated, checkFollowStatus]);
+  }, [id, isAuthenticated, checkFollowStatus, fetchUserRating]);
 
   const handleFollowToggle = async () => {
     if (!isAuthenticated) {
@@ -185,9 +226,12 @@ function RecipeDetails() {
         }
       } else {
         if (res.status === 401 || res.status === 403) {
+          console.log('[RecipeDetails] Błąd autoryzacji:', res.status);
+          // Usuwamy token, emitujemy zdarzenie (bez odświeżania strony)
           localStorage.removeItem('token');
-          setIsAuthenticated(false);
-          navigate('/login');
+          localStorage.removeItem('refresh_token');
+          window.dispatchEvent(new Event('tokenChange'));
+          navigate('/login', { replace: true });
           throw new Error('Sesja wygasła. Zaloguj się ponownie.');
         }
         throw new Error(`Nie udało się wykonać operacji: ${res.status} ${res.statusText}`);
@@ -222,14 +266,17 @@ function RecipeDetails() {
           'Authorization': 'Bearer ' + token,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ rating: userRating })
+        body: JSON.stringify({ value: userRating }) // Zmiana z "rating" na "value", zgodnie z RatingRequestDTO
       });
 
       if (!res.ok) {
         if (res.status === 401 || res.status === 403) {
+          console.log('[RecipeDetails] Błąd autoryzacji w ocenianiu:', res.status);
+          // Usuwamy token, emitujemy zdarzenie (bez odświeżania strony)
           localStorage.removeItem('token');
-          setIsAuthenticated(false);
-          navigate('/login');
+          localStorage.removeItem('refresh_token');
+          window.dispatchEvent(new Event('tokenChange'));
+          navigate('/login', { replace: true });
           throw new Error(t('sessionExpired', 'Sesja wygasła. Zaloguj się ponownie.'));
         }
         throw new Error(`${t('ratingError', 'Błąd podczas oceniania')}: ${res.status} ${res.statusText}`);
@@ -269,7 +316,9 @@ function RecipeDetails() {
 
       <p className="recipe-author">{t('author')}: {recipe.author.firstName} {recipe.author.lastName}</p>
       <div className="recipe-meta">
-        <span>{t('rate')}: {recipe.rate}</span> | <span>{t('estimatedTime')}: {recipe.estimatedTimeToPrepare}</span>
+        <span><i className="fas fa-star text-warning"></i> {recipe.rate} <small className="text-muted">({recipe.ratingCount || 0})</small></span> |
+        <span><i className="fas fa-heart text-danger mx-1"></i> {recipe.favoritesCount || 0}</span> |
+        <span>{t('estimatedTime')}: {recipe.estimatedTimeToPrepare}</span>
       </div>
 
       {isAuthenticated && (

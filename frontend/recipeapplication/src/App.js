@@ -69,7 +69,19 @@ function App() {
                             <h3>{recipe.title}</h3>
                             <p>{recipe.description}</p>
                             <div className="recipe-meta">
-                              {t('author')}: {recipe.author.firstName} {recipe.author.lastName} | {t('rate')}: {recipe.rate} | {t('estimatedTime')}: {recipe.estimatedTimeToPrepare}
+                              <span className="me-3">
+                                <i className="fas fa-user me-1"></i> {recipe.author.firstName} {recipe.author.lastName}
+                              </span>
+                              <span className="me-3">
+                                <i className="fas fa-star text-warning me-1"></i> {recipe.rate || 0}
+                                <small className="text-muted">({recipe.ratingCount || 0})</small>
+                              </span>
+                              <span className="me-3">
+                                <i className="fas fa-heart text-danger me-1"></i> {recipe.favoritesCount || 0}
+                              </span>
+                              <span>
+                                <i className="fas fa-clock me-1"></i> {recipe.estimatedTimeToPrepare}
+                              </span>
                             </div>
                           </li>
                         ))}

@@ -5,22 +5,24 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="22b7922e-f76a-4792-913c-1abe50672504" name="Changes" comment="Added posting rates to recipe">
-      <change beforePath="$PROJECT_DIR$/../backend/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/src/main/resources/application.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../backend/target/classes/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/target/classes/application.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/src/main/java/org/example/recipeapplication/config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/src/main/java/org/example/recipeapplication/config/SecurityConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/src/main/java/org/example/recipeapplication/controller/RatingController.java" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/src/main/java/org/example/recipeapplication/controller/RatingController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/src/main/java/org/example/recipeapplication/dto/RecipeResponseDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/src/main/java/org/example/recipeapplication/dto/RecipeResponseDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/src/main/java/org/example/recipeapplication/model/Recipe.java" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/src/main/java/org/example/recipeapplication/model/Recipe.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/src/main/java/org/example/recipeapplication/service/FollowedRecipeService.java" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/src/main/java/org/example/recipeapplication/service/FollowedRecipeService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/src/main/java/org/example/recipeapplication/service/RatingService.java" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/src/main/java/org/example/recipeapplication/service/RatingService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/src/main/java/org/example/recipeapplication/service/RecipeService.java" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/src/main/java/org/example/recipeapplication/service/RecipeService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/target/classes/org/example/recipeapplication/config/SecurityConfig.class" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/target/classes/org/example/recipeapplication/config/SecurityConfig.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/target/classes/org/example/recipeapplication/controller/RatingController.class" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/target/classes/org/example/recipeapplication/controller/RatingController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/target/classes/org/example/recipeapplication/dto/RecipeResponseDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/target/classes/org/example/recipeapplication/dto/RecipeResponseDTO.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/target/classes/org/example/recipeapplication/model/Recipe.class" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/target/classes/org/example/recipeapplication/model/Recipe.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/target/classes/org/example/recipeapplication/service/FollowedRecipeService.class" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/target/classes/org/example/recipeapplication/service/FollowedRecipeService.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/target/classes/org/example/recipeapplication/service/RatingService.class" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/target/classes/org/example/recipeapplication/service/RatingService.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/target/classes/org/example/recipeapplication/service/RecipeService.class" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/target/classes/org/example/recipeapplication/service/RecipeService.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/recipeapplication/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/recipeapplication/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/recipeapplication/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/recipeapplication/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/recipeapplication/src/App.css" beforeDir="false" afterPath="$PROJECT_DIR$/recipeapplication/src/App.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/recipeapplication/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/recipeapplication/src/App.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/recipeapplication/src/Footer.js" beforeDir="false" afterPath="$PROJECT_DIR$/recipeapplication/src/Footer.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/recipeapplication/src/Header.js" beforeDir="false" afterPath="$PROJECT_DIR$/recipeapplication/src/Header.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/recipeapplication/src/Login.js" beforeDir="false" afterPath="$PROJECT_DIR$/recipeapplication/src/Login.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/recipeapplication/src/Profile.js" beforeDir="false" afterPath="$PROJECT_DIR$/recipeapplication/src/Profile.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/recipeapplication/src/RecipeDetails.css" beforeDir="false" afterPath="$PROJECT_DIR$/recipeapplication/src/RecipeDetails.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/recipeapplication/src/RecipeDetails.js" beforeDir="false" afterPath="$PROJECT_DIR$/recipeapplication/src/RecipeDetails.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/recipeapplication/src/Register.js" beforeDir="false" afterPath="$PROJECT_DIR$/recipeapplication/src/Register.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/recipeapplication/src/i18n.js" beforeDir="false" afterPath="$PROJECT_DIR$/recipeapplication/src/i18n.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/recipeapplication/src/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/recipeapplication/src/index.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -96,7 +98,7 @@
       <option name="presentableId" value="Default" />
       <updated>1749024067596</updated>
       <workItem from="1749024068906" duration="16504000" />
-      <workItem from="1749503399801" duration="40937000" />
+      <workItem from="1749503399801" duration="48245000" />
     </task>
     <task id="LOCAL-00001" summary="Added package-json">
       <option name="closed" value="true" />
@@ -138,7 +140,15 @@
       <option name="project" value="LOCAL" />
       <updated>1749648243986</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="Added posting rates to recipe">
+      <option name="closed" value="true" />
+      <created>1749850206226</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1749850206227</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

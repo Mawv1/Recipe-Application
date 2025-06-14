@@ -3,6 +3,7 @@ package org.example.recipeapplication.model;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.With;
@@ -13,6 +14,7 @@ import java.util.List;
 @Data
 @With
 @Entity
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class Recipe {
@@ -25,6 +27,12 @@ public class Recipe {
     private String description;
 
     private Float rating;
+
+    // Liczba ocen, do obliczania średniej oceny
+    private Integer ratingCount;
+
+    // Liczba osób, które polubiły przepis
+    private Integer favoritesCount;
 
     private String estimatedTimeToPrepare;
 

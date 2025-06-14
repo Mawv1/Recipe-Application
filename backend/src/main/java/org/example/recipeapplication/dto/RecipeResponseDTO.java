@@ -8,7 +8,10 @@ public record RecipeResponseDTO(
         String title,
         String description,
         Float rate,
+        Integer ratingCount,
+        Integer favoritesCount,
         String estimatedTimeToPrepare,
         UserResponseDTO author,
         LocalDateTime dateOfCreation
 ) {}
+
