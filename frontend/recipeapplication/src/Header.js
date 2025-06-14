@@ -81,6 +81,14 @@ function Header() {
                         </div>
                         {isLoggedIn ? (
                             <div className="d-flex align-items-center">
+                                <Link
+                                    to="/add-recipe"
+                                    className="btn btn-warning me-3"
+                                    title={t('addRecipe', 'Dodaj przepis')}
+                                >
+                                    <i className="fas fa-plus-circle me-1"></i>
+                                    {t('addRecipe', 'Dodaj przepis')}
+                                </Link>
                                 <Link to="/profile" className="text-decoration-none text-dark fs-5 me-3" title={t('profile', 'Profil')}>
                                     <span role="img" aria-label="profile">👤</span>
                                 </Link>

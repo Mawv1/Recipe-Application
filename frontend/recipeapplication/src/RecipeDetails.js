@@ -59,7 +59,7 @@ function StarRating({ initialRating, totalStars = 5, onRatingChange, readonly = 
 
 function RecipeDetails() {
   const { id } = useParams();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [recipe, setRecipe] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -305,52 +305,93 @@ function RecipeDetails() {
     }
   };
 
-  if (loading) return <div className="loading-text">{t('loading', 'Ładowanie...')}</div>;
-  if (error) return <div className="error-text">{error}</div>;
   if (!recipe) return null;
+
+  // Funkcja do formatowania liczby polubień
+  const formatFavoritesCount = (count) => {
+    if (!count) return 0;
+
+    // Formatowanie dla dużych liczb (powyżej 1000)
+    if (count >= 1000) {
+      const formattedCount = (count / 1000).toFixed(1);
+      return i18n.language === 'pl' ? `${formattedCount} tys.` : `${formattedCount}K`;
+    }
+
+    return count;
+  };
 
   return (
     <div className="recipe-details-container">
-      <button className="back-btn" onClick={() => navigate(-1)}>{t('back', 'Powrót')}</button>
-      <h2>{recipe.title}</h2>
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <button className="back-btn" onClick={() => navigate(-1)}>
+          <i className="fas fa-arrow-left me-2"></i>
+          {t('back', 'Powrót')}
+        </button>
 
-      <p className="recipe-author">{t('author')}: {recipe.author.firstName} {recipe.author.lastName}</p>
-      <div className="recipe-meta">
-        <span><i className="fas fa-star text-warning"></i> {recipe.rate} <small className="text-muted">({recipe.ratingCount || 0})</small></span> |
-        <span><i className="fas fa-heart text-danger mx-1"></i> {recipe.favoritesCount || 0}</span> |
-        <span>{t('estimatedTime')}: {recipe.estimatedTimeToPrepare}</span>
+        {isAuthenticated && (
+          <div className="recipe-actions">
+            <button
+              className={`follow-btn ${isFollowed ? 'followed' : ''}`}
+              onClick={handleFollowToggle}
+              disabled={followLoading}
+              title={isFollowed
+                ? t('removeFromFavorites', 'Usuń z ulubionych')
+                : t('addToFavorites', 'Dodaj do ulubionych')}
+            >
+              {followLoading ? (
+                <span className="loading-spinner"></span>
+              ) : (
+                <>
+                  <FontAwesomeIcon icon={isFollowed ? solidHeart : regularHeart} />
+                  {isFollowed && (
+                    <span className="remove-indicator">
+                      <FontAwesomeIcon icon={faTimes} />
+                    </span>
+                  )}
+                </>
+              )}
+            </button>
+            <span className="favorite-text">
+              {isFollowed
+                ? t('removeFromFavorites', 'Usuń z ulubionych')
+                : t('addToFavorites', 'Dodaj do ulubionych')}
+            </span>
+          </div>
+        )}
       </div>
 
-      {isAuthenticated && (
-        <div className="recipe-actions">
-          <button
-            className={`follow-btn ${isFollowed ? 'followed' : ''}`}
-            onClick={handleFollowToggle}
-            disabled={followLoading}
-            title={isFollowed
-              ? t('removeFromFavorites', 'Usuń z ulubionych')
-              : t('addToFavorites', 'Dodaj do ulubionych')}
-          >
-            {followLoading ? (
-              <span className="loading-spinner"></span>
-            ) : (
-              <>
-                <FontAwesomeIcon icon={isFollowed ? solidHeart : regularHeart} />
-                {isFollowed && (
-                  <span className="remove-indicator">
-                    <FontAwesomeIcon icon={faTimes} />
-                  </span>
-                )}
-              </>
-            )}
-          </button>
-          <span className="favorite-text">
-            {isFollowed
-              ? t('removeFromFavorites', 'Usuń z ulubionych')
-              : t('addToFavorites', 'Dodaj do ulubionych')}
-          </span>
+      <h2>{recipe.title}</h2>
+
+      <p className="recipe-author">
+        <i className="fas fa-user me-1 text-secondary"></i> {recipe.author.firstName} {recipe.author.lastName}
+      </p>
+
+      {recipe.mainImageUrl && (
+        <div className="recipe-main-image mb-4">
+          <img
+            src={recipe.mainImageUrl}
+            alt={recipe.title}
+            className="img-fluid rounded"
+            style={{ maxHeight: '400px', objectFit: 'cover', width: '100%' }}
+          />
         </div>
       )}
+
+      <div className="recipe-meta d-flex align-items-center flex-wrap gap-3 mb-3">
+        <span className="d-inline-flex align-items-center">
+          <FontAwesomeIcon icon={solidStar} className="text-warning me-2" />
+          <span>{recipe.rate ? recipe.rate.toFixed(2) : '0.00'}</span>
+          <small className="text-muted ms-1">({recipe.ratingCount || 0})</small>
+        </span>
+        <span className="d-inline-flex align-items-center">
+          <FontAwesomeIcon icon={solidHeart} className="text-danger me-2" />
+          <span>{formatFavoritesCount(recipe.favoritesCount)}</span>
+        </span>
+        <span className="d-inline-flex align-items-center">
+          <i className="fas fa-clock text-primary me-2"></i>
+          <span>{recipe.estimatedTimeToPrepare}</span>
+        </span>
+      </div>
 
       <p className="recipe-description">{recipe.description}</p>
 

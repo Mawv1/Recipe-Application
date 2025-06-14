@@ -10,6 +10,7 @@ public record RecipeResponseDTO(
         Float rate,
         Integer ratingCount,
         Integer favoritesCount,
+        String mainImageUrl,
         String estimatedTimeToPrepare,
         UserResponseDTO author,
         LocalDateTime dateOfCreation

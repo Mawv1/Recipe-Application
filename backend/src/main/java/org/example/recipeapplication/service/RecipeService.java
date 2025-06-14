@@ -45,8 +45,11 @@ public class RecipeService {
         recipe.setTitle(dto.title());
         recipe.setDescription(dto.description());
         recipe.setEstimatedTimeToPrepare(dto.estimatedTimeToPrepare());
+        recipe.setMainImageUrl(dto.mainImageUrl());
         recipe.setDateOfCreation(new Timestamp(System.currentTimeMillis()));
         recipe.setRating(0f);
+        recipe.setRatingCount(0);
+        recipe.setFavoritesCount(0);
 
         AppUser author = userRepository.findByEmail(email)
                 .orElseThrow(() -> new EntityNotFoundException("Author not found with username: " + email));
@@ -80,6 +83,7 @@ public class RecipeService {
                 recipe.getRating(),
                 recipe.getRatingCount() != null ? recipe.getRatingCount() : 0,
                 recipe.getFavoritesCount() != null ? recipe.getFavoritesCount() : 0,
+                recipe.getMainImageUrl(),
                 recipe.getEstimatedTimeToPrepare(),
                 new UserResponseDTO(
                         recipe.getAuthor().getId(),

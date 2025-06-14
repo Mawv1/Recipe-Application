@@ -9,6 +9,7 @@ import RecipeDetails from './RecipeDetails';
 import Login from './Login';
 import Register from './Register';
 import Profile from './Profile';
+import AddRecipe from './AddRecipe';
 
 function App() {
   const { t } = useTranslation();
@@ -94,6 +95,7 @@ function App() {
           }
         />
         <Route path="/recipes/:id" element={<RecipeDetails />} />
+        <Route path="/add-recipe" element={<AddRecipe />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/profile" element={<Profile />} />

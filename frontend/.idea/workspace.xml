@@ -5,19 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="22b7922e-f76a-4792-913c-1abe50672504" name="Changes" comment="Added posting rates to recipe">
-      <change beforePath="$PROJECT_DIR$/../backend/src/main/java/org/example/recipeapplication/config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/src/main/java/org/example/recipeapplication/config/SecurityConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../backend/src/main/java/org/example/recipeapplication/controller/RatingController.java" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/src/main/java/org/example/recipeapplication/controller/RatingController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/src/main/java/org/example/recipeapplication/dto/RecipeRequestDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/src/main/java/org/example/recipeapplication/dto/RecipeRequestDTO.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../backend/src/main/java/org/example/recipeapplication/dto/RecipeResponseDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/src/main/java/org/example/recipeapplication/dto/RecipeResponseDTO.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../backend/src/main/java/org/example/recipeapplication/model/Recipe.java" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/src/main/java/org/example/recipeapplication/model/Recipe.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../backend/src/main/java/org/example/recipeapplication/service/FollowedRecipeService.java" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/src/main/java/org/example/recipeapplication/service/FollowedRecipeService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../backend/src/main/java/org/example/recipeapplication/service/RatingService.java" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/src/main/java/org/example/recipeapplication/service/RatingService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../backend/src/main/java/org/example/recipeapplication/service/RecipeService.java" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/src/main/java/org/example/recipeapplication/service/RecipeService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../backend/target/classes/org/example/recipeapplication/config/SecurityConfig.class" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/target/classes/org/example/recipeapplication/config/SecurityConfig.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../backend/target/classes/org/example/recipeapplication/controller/RatingController.class" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/target/classes/org/example/recipeapplication/controller/RatingController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/target/classes/org/example/recipeapplication/dto/RecipeRequestDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/target/classes/org/example/recipeapplication/dto/RecipeRequestDTO.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../backend/target/classes/org/example/recipeapplication/dto/RecipeResponseDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/target/classes/org/example/recipeapplication/dto/RecipeResponseDTO.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../backend/target/classes/org/example/recipeapplication/model/Recipe.class" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/target/classes/org/example/recipeapplication/model/Recipe.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../backend/target/classes/org/example/recipeapplication/service/FollowedRecipeService.class" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/target/classes/org/example/recipeapplication/service/FollowedRecipeService.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../backend/target/classes/org/example/recipeapplication/service/RatingService.class" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/target/classes/org/example/recipeapplication/service/RatingService.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../backend/target/classes/org/example/recipeapplication/service/RecipeService.class" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/target/classes/org/example/recipeapplication/service/RecipeService.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/recipeapplication/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/recipeapplication/src/App.js" afterDir="false" />
@@ -59,28 +53,28 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Jest.App.test.js.executor": "Run",
-    "Node.js.App.js.executor": "Run",
-    "Node.js.Profile.js.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "master",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "E:/Intellij projects/java/Zaawansowane Aplikacje Internetowe/RecipeApplication/frontend",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs.jest.jest_package": "E:/Intellij projects/java/Zaawansowane Aplikacje Internetowe/RecipeApplication/frontend/recipeapplication/node_modules/react-scripts",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
-    "ts.external.directory.path": "C:\\Program Files\\JetBrains\\IntelliJ IDEA 2024.3.6\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Jest.App.test.js.executor&quot;: &quot;Run&quot;,
+    &quot;Node.js.App.js.executor&quot;: &quot;Run&quot;,
+    &quot;Node.js.Profile.js.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;E:/Intellij projects/java/Zaawansowane Aplikacje Internetowe/RecipeApplication/frontend&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs.jest.jest_package&quot;: &quot;E:/Intellij projects/java/Zaawansowane Aplikacje Internetowe/RecipeApplication/frontend/recipeapplication/node_modules/react-scripts&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2024.3.6\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -98,7 +92,7 @@
       <option name="presentableId" value="Default" />
       <updated>1749024067596</updated>
       <workItem from="1749024068906" duration="16504000" />
-      <workItem from="1749503399801" duration="48245000" />
+      <workItem from="1749503399801" duration="50806000" />
     </task>
     <task id="LOCAL-00001" summary="Added package-json">
       <option name="closed" value="true" />

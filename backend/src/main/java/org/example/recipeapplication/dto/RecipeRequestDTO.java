@@ -10,6 +10,7 @@ public record RecipeRequestDTO(
         @NotBlank String title,
         @NotBlank String description,
         String estimatedTimeToPrepare,
+        String mainImageUrl,
         @NotEmpty List<IngredientRequestDTO> ingredients,
         @NotNull Long categoryId,
         List<String> tags

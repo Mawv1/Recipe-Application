@@ -34,6 +34,9 @@ public class Recipe {
     // Liczba osób, które polubiły przepis
     private Integer favoritesCount;
 
+    // URL do zdjęcia głównego przepisu
+    private String mainImageUrl;
+
     private String estimatedTimeToPrepare;
 
     @ManyToOne
