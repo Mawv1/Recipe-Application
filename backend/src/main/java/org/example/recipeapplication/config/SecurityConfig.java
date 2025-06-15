@@ -58,7 +58,7 @@ public class SecurityConfig {
                 .cors(cors -> {
                     cors.configurationSource(request -> {
                         var corsConfig = new org.springframework.web.cors.CorsConfiguration();
-                        corsConfig.setAllowedOrigins(java.util.List.of("http://localhost:3000"));
+                        corsConfig.setAllowedOriginPatterns(java.util.List.of("localhost:3000", "http://localhost:3000"));
                         corsConfig.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
                         corsConfig.setAllowedHeaders(java.util.List.of("*"));
                         corsConfig.setAllowCredentials(true);
@@ -86,8 +86,13 @@ public class SecurityConfig {
                                 .authenticated()
                                 .requestMatchers(PUT,"/api/v1/users/*/password")
                                 .authenticated()
+                                .requestMatchers(POST, "/api/v1/recipes").permitAll()
                                 .requestMatchers(POST, "/api/v1/recipes/*/rate")
                                 .authenticated()
+                                .requestMatchers(GET, "/api/v1/categories")
+                                .authenticated()
+                                .requestMatchers(POST, "/api/v1/categories")
+                                .hasRole("ADMIN")
 
                                 // Pozostałe reguły
                                 .requestMatchers(POST, "/api/v1/recipes/add").hasAuthority(String.valueOf(Permission.RECIPE_CREATE))

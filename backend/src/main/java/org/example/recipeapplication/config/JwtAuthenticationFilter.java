@@ -7,7 +7,11 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -18,9 +22,14 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import org.example.recipeapplication.repos.TokenRepository;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
+
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
+
+    private static final Logger log = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
 
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
@@ -41,14 +50,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String path = request.getServletPath();
         String method = request.getMethod();
 
-        // Pomijamy filtr dla publicznych endpointów
-        if (path.equals("/api/v1/recipes") ||
+        // Pomijamy filtr dla publicznych endpointów tylko dla GET
+        if ((path.equals("/api/v1/recipes") && method.equals("GET")) ||
             path.startsWith("/api/v1/recipes/search") ||
             path.startsWith("/api/v1/recipes/category/") ||
             path.startsWith("/api/v1/recipes/user/") ||
             (path.startsWith("/api/v1/recipes/") && method.equals("GET")) ||
             // Publiczne endpointy dla obserwowanych przepisów
-            path.matches("/api/v1/users/\\d+/followed-recipes") || // Regexp dla /users/{userId}/followed-recipes
+            path.matches("/api/v1/users/\\d+/followed-recipes") ||
             path.startsWith("/api/v1/users/email/")) {
             filterChain.doFilter(request, response);
             return;
@@ -69,15 +78,26 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     .map(t -> !t.isExpired() && !t.isRevoked())
                     .orElse(false);
             if (jwtService.isTokenValid(jwt, userDetails) && isTokenValid) {
+                // Pobierz rolę z tokena JWT
+                String role = (String) jwtService.extractAllClaims(jwt).get("role");
+                Collection<? extends GrantedAuthority> authorities;
+                if (role != null) {
+                    authorities = List.of(new SimpleGrantedAuthority("ROLE_" + role));
+                } else {
+                    authorities = userDetails.getAuthorities();
+                }
+                log.info("JWT AUTH: user={}, role={}, authorities={}", userEmail, role, authorities);
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userDetails,
                         null,
-                        userDetails.getAuthorities()
+                        authorities
                 );
                 authToken.setDetails(
                         new WebAuthenticationDetailsSource().buildDetails(request)
                 );
                 SecurityContextHolder.getContext().setAuthentication(authToken);
+            } else {
+                log.warn("JWT AUTH: token invalid or revoked for user={}", userEmail);
             }
         }
         filterChain.doFilter(request, response);

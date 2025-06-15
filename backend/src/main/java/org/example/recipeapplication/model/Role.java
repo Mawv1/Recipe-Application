@@ -15,7 +15,8 @@ public enum Role {
             Permission.ADMIN_READ,
             Permission.ADMIN_UPDATE,
             Permission.ADMIN_DELETE,
-            Permission.ADMIN_CREATE
+            Permission.ADMIN_CREATE,
+            Permission.CATEGORY_CREATE
     )),
     USER(Set.of(
             Permission.RECIPE_READ,

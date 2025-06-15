@@ -17,6 +17,7 @@ import org.example.recipeapplication.repos.RecipeRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.sql.Timestamp;
 import java.util.List;
@@ -31,9 +32,24 @@ public class RecipeService {
     private final CategoryRepository categoryRepository;
     private final AppUserRepository userRepository;
     private final IngredientRepository ingredientRepository;
+    private final FileStorageService fileStorageService;
 
     public Page<RecipeResponseDTO> getAllRecipes(Pageable pageable) {
-        return recipeRepository.findAll(pageable).map(this::mapToDTO);
+        return recipeRepository.findByStatus(org.example.recipeapplication.model.RecipeStatus.ACCEPTED, pageable)
+                .map(this::mapToDTO);
+    }
+
+    public Page<RecipeResponseDTO> getPendingRecipes(Pageable pageable) {
+        return recipeRepository.findByStatus(org.example.recipeapplication.model.RecipeStatus.PENDING, pageable)
+                .map(this::mapToDTO);
+    }
+
+    public RecipeResponseDTO changeRecipeStatus(Long recipeId, org.example.recipeapplication.model.RecipeStatus status) {
+        Recipe recipe = recipeRepository.findById(recipeId)
+                .orElseThrow(() -> new EntityNotFoundException("Recipe not found"));
+        recipe.setStatus(status);
+        recipeRepository.save(recipe);
+        return mapToDTO(recipe);
     }
 
     public Page<RecipeResponseDTO> searchRecipes(String search, Pageable pageable) {
@@ -50,6 +66,7 @@ public class RecipeService {
         recipe.setRating(0f);
         recipe.setRatingCount(0);
         recipe.setFavoritesCount(0);
+        recipe.setStatus(org.example.recipeapplication.model.RecipeStatus.PENDING);
 
         AppUser author = userRepository.findByEmail(email)
                 .orElseThrow(() -> new EntityNotFoundException("Author not found with username: " + email));
@@ -75,6 +92,65 @@ public class RecipeService {
         return mapToDTO(saved);
     }
 
+    /**
+     * Dodaje nowy przepis wraz ze zdjęciem
+     */
+    public RecipeResponseDTO addRecipeWithImage(RecipeRequestDTO dto, MultipartFile imageFile, String email) {
+        // Zapisujemy zdjęcie i uzyskujemy jego URL
+        String imageUrl = null;
+        if (imageFile != null && !imageFile.isEmpty()) {
+            imageUrl = fileStorageService.storeRecipeImage(imageFile);
+        }
+
+        // Jeśli w DTO był już ustawiony URL zdjęcia głównego, to nie nadpisujemy go
+        if (imageUrl != null && (dto.mainImageUrl() == null || dto.mainImageUrl().isEmpty())) {
+            // Tworzymy nowe DTO z ustawionym URL zdjęcia głównego
+            RecipeRequestDTO updatedDto = new RecipeRequestDTO(
+                dto.title(),
+                dto.description(),
+                dto.estimatedTimeToPrepare(),
+                imageUrl,
+                dto.ingredients(),
+                dto.categoryId(),
+                dto.tags()
+            );
+            return addRecipe(updatedDto, email);
+        } else {
+            // Używamy oryginalnego DTO
+            return addRecipe(dto, email);
+        }
+    }
+
+    /**
+     * Aktualizuje zdjęcie główne dla istniejącego przepisu
+     */
+    public RecipeResponseDTO updateRecipeImage(Long recipeId, MultipartFile imageFile, String email) {
+        // Sprawdzamy, czy przepis istnieje i czy użytkownik ma uprawnienia
+        Recipe recipe = recipeRepository.findById(recipeId)
+                .orElseThrow(() -> new EntityNotFoundException("Recipe not found with id: " + recipeId));
+
+        // Sprawdzamy czy zalogowany użytkownik jest autorem przepisu
+        if (!recipe.getAuthor().getEmail().equals(email)) {
+            throw new SecurityException("You are not authorized to update this recipe.");
+        }
+
+        // Usuwamy stare zdjęcie, jeśli istnieje
+        if (recipe.getMainImageUrl() != null && !recipe.getMainImageUrl().isEmpty()) {
+            fileStorageService.deleteFile(recipe.getMainImageUrl());
+        }
+
+        // Zapisujemy nowe zdjęcie
+        if (imageFile != null && !imageFile.isEmpty()) {
+            String imageUrl = fileStorageService.storeRecipeImage(imageFile);
+            recipe.setMainImageUrl(imageUrl);
+            recipe.setDateOfModification(new Timestamp(System.currentTimeMillis()));
+            Recipe updatedRecipe = recipeRepository.save(recipe);
+            return mapToDTO(updatedRecipe);
+        } else {
+            throw new IllegalArgumentException("Image file cannot be empty");
+        }
+    }
+
     private RecipeResponseDTO mapToDTO(Recipe recipe) {
         return new RecipeResponseDTO(
                 recipe.getId(),
@@ -90,9 +166,11 @@ public class RecipeService {
                         recipe.getAuthor().getFirstName(),
                         recipe.getAuthor().getLastName(),
                         recipe.getAuthor().getProfilePicture(),
-                        recipe.getAuthor().getEmail()
+                        recipe.getAuthor().getEmail(),
+                        recipe.getAuthor().getRole() != null ? recipe.getAuthor().getRole().name() : null,
+                        null // nie pobieramy przepisów autora w DTO przepisu
                 ),
-                recipe.getDateOfCreation().toLocalDateTime()
+                recipe.getDateOfCreation() != null ? recipe.getDateOfCreation().toLocalDateTime() : null
         );
     }
 

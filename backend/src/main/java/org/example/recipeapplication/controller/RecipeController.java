@@ -10,11 +10,15 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/recipes")
@@ -64,12 +68,34 @@ public class RecipeController {
         return ResponseEntity.ok(recipeService.getUserRecipes(userId, pageable));
     }
 
-    @PostMapping("/add")
+    @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<RecipeResponseDTO> addRecipeWithImage(
+            @RequestPart("recipe") RecipeRequestDTO recipeRequestDTO,
+            @RequestPart(value = "image", required = false) MultipartFile imageFile,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        RecipeResponseDTO createdRecipe = recipeService.addRecipeWithImage(recipeRequestDTO, imageFile, userDetails.getUsername());
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdRecipe);
+    }
+
+    @PostMapping
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<RecipeResponseDTO> addRecipe(
             @Valid @RequestBody RecipeRequestDTO recipeRequestDTO,
-            @AuthenticationPrincipal UserDetails userDetails
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestHeader Map<String, String> headers
     ) {
+        // Logowanie nagłówków
+        System.out.println("[RecipeController] Headers:");
+        headers.forEach((k, v) -> System.out.println(k + ": " + v));
+        String authHeader = headers.getOrDefault("authorization", "BRAK");
+        System.out.println("[RecipeController] Authorization header: " + authHeader);
+        if (userDetails == null) {
+            System.err.println("[RecipeController] userDetails is null! Token JWT nie został rozpoznany.");
+            return ResponseEntity.status(401).build();
+        }
+        System.out.println("[RecipeController] userDetails: " + userDetails.getUsername());
         RecipeResponseDTO createdRecipe = recipeService.addRecipe(recipeRequestDTO, userDetails.getUsername());
         return ResponseEntity.status(HttpStatus.CREATED).body(createdRecipe);
     }
@@ -90,4 +116,36 @@ public class RecipeController {
         recipeService.deleteRecipe(id, userDetails.getUsername());
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/{id}/image")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<RecipeResponseDTO> uploadRecipeImage(
+            @PathVariable Long id,
+            @RequestParam("image") MultipartFile imageFile,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        RecipeResponseDTO updatedRecipe = recipeService.updateRecipeImage(id, imageFile, userDetails.getUsername());
+        return ResponseEntity.ok(updatedRecipe);
+    }
+
+    @GetMapping("/pending")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Page<RecipeResponseDTO>> getPendingRecipes(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+        return ResponseEntity.ok(recipeService.getPendingRecipes(pageable));
+    }
+
+    @PatchMapping("/{id}/status")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<RecipeResponseDTO> changeRecipeStatus(
+            @PathVariable Long id,
+            @RequestParam("status") String status
+    ) {
+        RecipeResponseDTO updated = recipeService.changeRecipeStatus(id, org.example.recipeapplication.model.RecipeStatus.valueOf(status));
+        return ResponseEntity.ok(updated);
+    }
 }
+

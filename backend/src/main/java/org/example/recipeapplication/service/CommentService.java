@@ -62,7 +62,9 @@ public class CommentService {
                         comment.getAuthor().getFirstName(),
                         comment.getAuthor().getLastName(),
                         comment.getAuthor().getProfilePicture(),
-                        comment.getAuthor().getEmail()
+                        comment.getAuthor().getEmail(),
+                        comment.getAuthor().getRole() != null ? comment.getAuthor().getRole().name() : null,
+                        null // nie pobieramy przepisów autora w komentarzu
                 ),
                 comment.getDateOfCreation().toLocalDateTime()
         );

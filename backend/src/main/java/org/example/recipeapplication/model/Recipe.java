@@ -22,8 +22,10 @@ public class Recipe {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(length = 255)
     private String title;
 
+    @Column(columnDefinition = "TEXT")
     private String description;
 
     private Float rating;
@@ -35,8 +37,10 @@ public class Recipe {
     private Integer favoritesCount;
 
     // URL do zdjęcia głównego przepisu
+    @Column(length = 1000)
     private String mainImageUrl;
 
+    @Column(length = 100)
     private String estimatedTimeToPrepare;
 
     @ManyToOne
@@ -59,4 +63,7 @@ public class Recipe {
 
     @OneToMany
     private List<RecipeTag> tags;
+
+    @Enumerated(EnumType.STRING)
+    private RecipeStatus status;
 }

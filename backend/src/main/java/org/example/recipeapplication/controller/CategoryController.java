@@ -7,6 +7,7 @@ import org.example.recipeapplication.model.Category;
 import org.example.recipeapplication.service.CategoryService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.List;
 
@@ -21,10 +22,10 @@ public class CategoryController {
         return categoryService.getAllCategories();
     }
 
+    @PreAuthorize("hasRole(Role.ADMIN)")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public CategoryResponseDTO addCategory(@RequestBody CategoryRequestDTO categoryRequestDTO) {
         return categoryService.addCategory(categoryRequestDTO);
     }
 }
-
