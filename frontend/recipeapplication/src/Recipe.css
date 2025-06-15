@@ -1,0 +1,25 @@
+/* Style dla formularza przepisu */
+.ingredient-row {
+  position: relative;
+  padding: 8px;
+  border-radius: 6px;
+  transition: background-color 0.2s;
+}
+
+.ingredient-row:hover {
+  background-color: #f8f9fa;
+}
+
+/* Delikatne efekty wizualne dla formularza */
+form .form-control:focus,
+form .form-select:focus {
+  border-color: #ffc107;
+  box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25);
+}
+
+/* Lepsza widoczność wymaganego pola */
+.form-label::after {
+  content: " *";
+  color: #ffc107;
+  font-weight: bold;
+}

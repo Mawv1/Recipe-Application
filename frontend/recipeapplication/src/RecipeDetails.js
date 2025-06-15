@@ -393,7 +393,7 @@ function RecipeDetails() {
         </span>
       </div>
 
-      <p className="recipe-description">{recipe.description}</p>
+      <div className="recipe-description" dangerouslySetInnerHTML={{ __html: recipe.description }} />
 
       <div className="recipe-rating mt-4 p-3 bg-light rounded">
         <h4 className="mb-3">{t('rateRecipe', 'Oceń przepis')}</h4>

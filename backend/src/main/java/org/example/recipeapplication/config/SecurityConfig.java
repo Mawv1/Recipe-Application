@@ -93,6 +93,7 @@ public class SecurityConfig {
                                 .authenticated()
                                 .requestMatchers(POST, "/api/v1/categories")
                                 .hasRole("ADMIN")
+                                .requestMatchers(POST, "/api/v1/uploads").authenticated()
 
                                 // Pozostałe reguły
                                 .requestMatchers(POST, "/api/v1/recipes/add").hasAuthority(String.valueOf(Permission.RECIPE_CREATE))
