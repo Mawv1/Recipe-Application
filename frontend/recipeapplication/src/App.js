@@ -10,6 +10,8 @@ import Login from './Login';
 import Register from './Register';
 import Profile from './Profile';
 import AddRecipe from './AddRecipe';
+import AdminPanel from './admin/AdminPanel';
+import PendingRecipesAdmin from './admin/PendingRecipesAdmin';
 
 function App() {
   const { t } = useTranslation();
@@ -99,6 +101,12 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/profile" element={<Profile />} />
+
+        {/* Trasy dla panelu administratora */}
+        <Route path="/admin" element={<AdminPanel />}>
+          <Route index element={<PendingRecipesAdmin />} />
+          <Route path="pending-recipes" element={<PendingRecipesAdmin />} />
+        </Route>
       </Routes>
       <Footer />
     </div>

@@ -2,10 +2,12 @@ package org.example.recipeapplication.config;
 
 import lombok.RequiredArgsConstructor;
 import org.example.recipeapplication.model.Permission;
+import org.example.recipeapplication.model.Role;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -20,6 +22,7 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -33,7 +36,9 @@ public class SecurityConfig {
             "/configuration/security",
             "/swagger-ui/**",
             "/webjars/**",
-            "/swagger-ui.html"};
+            "/swagger-ui.html"
+            // Usunięto "/api/v1/recipes/pending" z listy publicznych endpointów
+    };
 
     // Endpointy związane z przeglądaniem przepisów, dostępne bez autentykacji
     private static final String[] PUBLIC_RECIPE_ENDPOINTS = {
@@ -42,6 +47,7 @@ public class SecurityConfig {
             "/api/v1/recipes/category/**",
             "/api/v1/recipes/user/**",
             "/api/v1/recipes/{id:[\\d]+}",
+            // "/api/v1/recipes/pending" - usunięto, aby ograniczyć dostęp
             "/api/v1/users/*/followed-recipes", // przeglądanie śledzonych przepisów innych użytkowników
             "/api/v1/users/email/*", // wyszukiwanie użytkownika po emailu
             "/api/v1/users/*/password"
@@ -58,7 +64,7 @@ public class SecurityConfig {
                 .cors(cors -> {
                     cors.configurationSource(request -> {
                         var corsConfig = new org.springframework.web.cors.CorsConfiguration();
-                        corsConfig.setAllowedOriginPatterns(java.util.List.of("localhost:3000", "http://localhost:3000"));
+                        corsConfig.setAllowedOriginPatterns(java.util.List.of("localhost:3000", "http://localhost:3000", "http://localhost:8080"));
                         corsConfig.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
                         corsConfig.setAllowedHeaders(java.util.List.of("*"));
                         corsConfig.setAllowCredentials(true);
@@ -86,13 +92,15 @@ public class SecurityConfig {
                                 .authenticated()
                                 .requestMatchers(PUT,"/api/v1/users/*/password")
                                 .authenticated()
-                                .requestMatchers(POST, "/api/v1/recipes").permitAll()
+                                .requestMatchers(POST, "/api/v1/recipes").hasAuthority("ADMIN")
+                                .requestMatchers(GET, "/api/v1/recipes/pending")
+                                .hasAuthority("ADMIN") // Zmienione by pasowało do roli z JWT ("ADMIN" bez prefiksu)
                                 .requestMatchers(POST, "/api/v1/recipes/*/rate")
                                 .authenticated()
                                 .requestMatchers(GET, "/api/v1/categories")
                                 .authenticated()
                                 .requestMatchers(POST, "/api/v1/categories")
-                                .hasRole("ADMIN")
+                                .hasAuthority("ADMIN") // Zmienione by pasowało do roli z JWT ("ADMIN" bez prefiksu)
                                 .requestMatchers(POST, "/api/v1/uploads").authenticated()
 
                                 // Pozostałe reguły
@@ -112,4 +120,3 @@ public class SecurityConfig {
         return http.build();
     }
 }
-

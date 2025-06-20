@@ -2,12 +2,20 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import './Auth.css';
+import { useAuth } from './contexts/AuthContext';
 
 function Header() {
     const { t, i18n } = useTranslation();
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
+
+    // Bezpieczne użycie useAuth - może zwrócić null jeśli provider nie jest dodany
+    const auth = useAuth();
+    // Bezpieczne pobranie currentUser
+    const currentUser = auth?.currentUser;
+    // Sprawdzenie czy użytkownik ma rolę administratora
+    const isAdmin = currentUser?.role === 'ADMIN';
 
     // Sprawdzanie stanu logowania (jako useCallback, aby można było go używać w innych funkcjach)
     const checkLogin = useCallback(() => {
@@ -81,6 +89,16 @@ function Header() {
                         </div>
                         {isLoggedIn ? (
                             <div className="d-flex align-items-center">
+                                {isAdmin && (
+                                    <Link
+                                        to="/admin"
+                                        className="btn btn-danger me-3"
+                                        title={t('adminPanel', 'Panel Admina')}
+                                    >
+                                        <i className="fas fa-user-shield me-1"></i>
+                                        {t('adminPanel', 'Panel Admina')}
+                                    </Link>
+                                )}
                                 <Link
                                     to="/add-recipe"
                                     className="btn btn-warning me-3"

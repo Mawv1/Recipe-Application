@@ -129,7 +129,7 @@ public class RecipeController {
     }
 
     @GetMapping("/pending")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'ROLE_ADMIN')")
     public ResponseEntity<Page<RecipeResponseDTO>> getPendingRecipes(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
@@ -148,4 +148,3 @@ public class RecipeController {
         return ResponseEntity.ok(updated);
     }
 }
-
