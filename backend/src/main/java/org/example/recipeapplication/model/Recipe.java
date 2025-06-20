@@ -61,8 +61,11 @@ public class Recipe {
     @OneToMany
     private List<RecipeImage> images;
 
-    @OneToMany
-    private List<RecipeTag> tags;
+    // Zmiana z listy obiektów RecipeTag na listę stringów
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "recipe_tags", joinColumns = @JoinColumn(name = "recipe_id"))
+    @Column(name = "tag")
+    private List<String> tags;
 
     @Enumerated(EnumType.STRING)
     private RecipeStatus status;

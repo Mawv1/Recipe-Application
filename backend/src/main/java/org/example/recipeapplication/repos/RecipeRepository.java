@@ -18,7 +18,10 @@ import java.util.Optional;
 public interface RecipeRepository extends JpaRepository<Recipe, Long> {
     List<Recipe> findByCategory_Id(Long categoryId);
     List<Recipe> findByCategory_NameContaining(String categoryName);
-    List<Recipe> findByTags_NameContaining(String name);
+
+    // Poprawiona metoda dla wyszukiwania po tagach
+    @Query("SELECT r FROM Recipe r JOIN r.tags t WHERE t LIKE %:tag%")
+    List<Recipe> findByTagsContaining(@Param("tag") String tag);
 
     Page<Recipe> findByTitleContainingIgnoreCase(String search, Pageable pageable);
 

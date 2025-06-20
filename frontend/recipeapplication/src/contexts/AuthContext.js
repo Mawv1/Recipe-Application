@@ -18,6 +18,25 @@ export const AuthProvider = ({ children }) => {
     } else {
       setLoading(false);
     }
+
+    // Nasłuchuj na zdarzenie zmiany tokenu
+    const handleTokenChange = () => {
+      console.log("[AuthContext] Wykryto zmianę tokenu");
+      const newToken = localStorage.getItem('token');
+      if (newToken) {
+        fetchCurrentUser(newToken);
+      } else {
+        setCurrentUser(null);
+        setIsAuthenticated(false);
+        setLoading(false);
+      }
+    };
+
+    window.addEventListener('tokenChange', handleTokenChange);
+
+    return () => {
+      window.removeEventListener('tokenChange', handleTokenChange);
+    };
   }, []);
 
   const fetchCurrentUser = async (token) => {

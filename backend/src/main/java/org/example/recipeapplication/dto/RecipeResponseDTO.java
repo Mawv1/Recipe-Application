@@ -1,5 +1,7 @@
 package org.example.recipeapplication.dto;
 
+import org.example.recipeapplication.model.RecipeStatus;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -13,6 +15,8 @@ public record RecipeResponseDTO(
         String mainImageUrl,
         String estimatedTimeToPrepare,
         UserResponseDTO author,
-        LocalDateTime dateOfCreation
+        LocalDateTime dateOfCreation,
+        RecipeStatus status,
+        List<String> tags
 ) {}
 

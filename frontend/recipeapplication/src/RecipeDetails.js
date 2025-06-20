@@ -216,6 +216,10 @@ function RecipeDetails() {
         setLocalFollowState(newStatus);
         setIsFollowed(newStatus);
 
+        // Emituj zdarzenie zmiany przepisu, aby odświeżyć listę na stronie głównej
+        console.log('[RecipeDetails] Emituję zdarzenie recipeChange po zmianie statusu obserwowania');
+        window.dispatchEvent(new Event('recipeChange'));
+
         if (method === 'POST' && res.status === 201) {
           try {
             const responseData = await res.clone().json();
@@ -295,6 +299,10 @@ function RecipeDetails() {
 
       const updatedRecipe = await updatedRecipeRes.json();
       setRecipe(updatedRecipe);
+
+      // Emituj zdarzenie zmiany przepisu, aby odświeżyć listę na stronie głównej
+      console.log('[RecipeDetails] Emituję zdarzenie recipeChange po ocenieniu przepisu');
+      window.dispatchEvent(new Event('recipeChange'));
 
       alert(t('ratingSuccess', 'Twoja ocena została zapisana!'));
     } catch (err) {

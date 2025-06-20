@@ -8,6 +8,7 @@ import org.example.recipeapplication.dto.UserResponseDTO;
 import org.example.recipeapplication.model.AppUser;
 import org.example.recipeapplication.model.FollowedRecipe;
 import org.example.recipeapplication.model.Recipe;
+import org.example.recipeapplication.model.RecipeTag;
 import org.example.recipeapplication.repos.AppUserRepository;
 import org.example.recipeapplication.repos.FollowedRecipeRepository;
 import org.example.recipeapplication.repos.RecipeRepository;
@@ -65,12 +66,14 @@ public class UserService {
                 recipe.getTitle(),
                 recipe.getDescription(),
                 recipe.getRating(),
-                recipe.getRatingCount(),
-                recipe.getFavoritesCount(),
+                recipe.getRatingCount() != null ? recipe.getRatingCount() : 0,
+                recipe.getFavoritesCount() != null ? recipe.getFavoritesCount() : 0,
                 recipe.getMainImageUrl(),
                 recipe.getEstimatedTimeToPrepare(),
                 null, // author (unikamy cykliczności)
-                recipe.getDateOfCreation() != null ? recipe.getDateOfCreation().toLocalDateTime() : null
+                recipe.getDateOfCreation() != null ? recipe.getDateOfCreation().toLocalDateTime() : null,
+                recipe.getStatus(),
+                recipe.getTags() != null ? recipe.getTags() : List.of()
         );
     }
 

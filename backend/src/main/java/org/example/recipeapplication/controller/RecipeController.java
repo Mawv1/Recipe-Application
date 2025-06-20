@@ -83,19 +83,11 @@ public class RecipeController {
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<RecipeResponseDTO> addRecipe(
             @Valid @RequestBody RecipeRequestDTO recipeRequestDTO,
-            @AuthenticationPrincipal UserDetails userDetails,
-            @RequestHeader Map<String, String> headers
+            @AuthenticationPrincipal UserDetails userDetails
     ) {
-        // Logowanie nagłówków
-        System.out.println("[RecipeController] Headers:");
-        headers.forEach((k, v) -> System.out.println(k + ": " + v));
-        String authHeader = headers.getOrDefault("authorization", "BRAK");
-        System.out.println("[RecipeController] Authorization header: " + authHeader);
         if (userDetails == null) {
-            System.err.println("[RecipeController] userDetails is null! Token JWT nie został rozpoznany.");
             return ResponseEntity.status(401).build();
         }
-        System.out.println("[RecipeController] userDetails: " + userDetails.getUsername());
         RecipeResponseDTO createdRecipe = recipeService.addRecipe(recipeRequestDTO, userDetails.getUsername());
         return ResponseEntity.status(HttpStatus.CREATED).body(createdRecipe);
     }
@@ -147,4 +139,6 @@ public class RecipeController {
         RecipeResponseDTO updated = recipeService.changeRecipeStatus(id, org.example.recipeapplication.model.RecipeStatus.valueOf(status));
         return ResponseEntity.ok(updated);
     }
+
+//    @PatchMapping("/{id}/status")
 }

@@ -47,7 +47,7 @@ public class SecurityConfig {
             "/api/v1/recipes/category/**",
             "/api/v1/recipes/user/**",
             "/api/v1/recipes/{id:[\\d]+}",
-            // "/api/v1/recipes/pending" - usunięto, aby ograniczyć dostęp
+             "/api/v1/recipes",
             "/api/v1/users/*/followed-recipes", // przeglądanie śledzonych przepisów innych użytkowników
             "/api/v1/users/email/*", // wyszukiwanie użytkownika po emailu
             "/api/v1/users/*/password"
@@ -65,7 +65,7 @@ public class SecurityConfig {
                     cors.configurationSource(request -> {
                         var corsConfig = new org.springframework.web.cors.CorsConfiguration();
                         corsConfig.setAllowedOriginPatterns(java.util.List.of("localhost:3000", "http://localhost:3000", "http://localhost:8080"));
-                        corsConfig.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                        corsConfig.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
                         corsConfig.setAllowedHeaders(java.util.List.of("*"));
                         corsConfig.setAllowCredentials(true);
                         corsConfig.setMaxAge(3600L);
@@ -92,7 +92,10 @@ public class SecurityConfig {
                                 .authenticated()
                                 .requestMatchers(PUT,"/api/v1/users/*/password")
                                 .authenticated()
-                                .requestMatchers(POST, "/api/v1/recipes").hasAuthority("ADMIN")
+                                .requestMatchers(GET, "/api/v1/recipes")
+                                .permitAll()
+                                .requestMatchers(POST, "/api/v1/recipes")
+                                .hasAuthority("ADMIN")
                                 .requestMatchers(GET, "/api/v1/recipes/pending")
                                 .hasAuthority("ADMIN") // Zmienione by pasowało do roli z JWT ("ADMIN" bez prefiksu)
                                 .requestMatchers(POST, "/api/v1/recipes/*/rate")

@@ -6,10 +6,7 @@ import org.example.recipeapplication.dto.IngredientRequestDTO;
 import org.example.recipeapplication.dto.RecipeRequestDTO;
 import org.example.recipeapplication.dto.RecipeResponseDTO;
 import org.example.recipeapplication.dto.UserResponseDTO;
-import org.example.recipeapplication.model.AppUser;
-import org.example.recipeapplication.model.Category;
-import org.example.recipeapplication.model.Ingredient;
-import org.example.recipeapplication.model.Recipe;
+import org.example.recipeapplication.model.*;
 import org.example.recipeapplication.repos.AppUserRepository;
 import org.example.recipeapplication.repos.CategoryRepository;
 import org.example.recipeapplication.repos.IngredientRepository;
@@ -170,7 +167,9 @@ public class RecipeService {
                         recipe.getAuthor().getRole() != null ? recipe.getAuthor().getRole().name() : null,
                         null // nie pobieramy przepisów autora w DTO przepisu
                 ),
-                recipe.getDateOfCreation() != null ? recipe.getDateOfCreation().toLocalDateTime() : null
+                recipe.getDateOfCreation() != null ? recipe.getDateOfCreation().toLocalDateTime() : null,
+                recipe.getStatus(),
+                recipe.getTags() != null ? recipe.getTags() : List.of()
         );
     }
 
