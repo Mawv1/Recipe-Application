@@ -36,7 +36,8 @@ public class SecurityConfig {
             "/configuration/security",
             "/swagger-ui/**",
             "/webjars/**",
-            "/swagger-ui.html"
+            "/swagger-ui.html",
+            "/uploads/**" // Dodana ścieżka dla plików obrazów w katalogu uploads
             // Usunięto "/api/v1/recipes/pending" z listy publicznych endpointów
     };
 
@@ -47,7 +48,7 @@ public class SecurityConfig {
             "/api/v1/recipes/category/**",
             "/api/v1/recipes/user/**",
             "/api/v1/recipes/{id:[\\d]+}",
-             "/api/v1/recipes",
+            "/api/v1/recipes",
             "/api/v1/users/*/followed-recipes", // przeglądanie śledzonych przepisów innych użytkowników
             "/api/v1/users/email/*", // wyszukiwanie użytkownika po emailu
             "/api/v1/users/*/password"
@@ -95,13 +96,20 @@ public class SecurityConfig {
                                 .requestMatchers(GET, "/api/v1/recipes")
                                 .permitAll()
                                 .requestMatchers(POST, "/api/v1/recipes")
-                                .hasAuthority("ADMIN")
+//                                .hasAuthority("ADMIN")
+                                .authenticated()
+                                .requestMatchers(GET, "/api/v1/recipes/my-recipes")
+                                .authenticated()
+                                .requestMatchers(PUT, "/api/v1/recipes/*")
+                                .authenticated()
+                                .requestMatchers(DELETE, "/api/v1/recipes/*")
+                                .authenticated()
                                 .requestMatchers(GET, "/api/v1/recipes/pending")
-                                .hasAuthority("ADMIN") // Zmienione by pasowało do roli z JWT ("ADMIN" bez prefiksu)
+                                .hasAuthority("ADMIN")
                                 .requestMatchers(POST, "/api/v1/recipes/*/rate")
                                 .authenticated()
                                 .requestMatchers(GET, "/api/v1/categories")
-                                .authenticated()
+                                .permitAll()
                                 .requestMatchers(POST, "/api/v1/categories")
                                 .hasAuthority("ADMIN") // Zmienione by pasowało do roli z JWT ("ADMIN" bez prefiksu)
                                 .requestMatchers(POST, "/api/v1/uploads").authenticated()

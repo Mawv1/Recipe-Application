@@ -18,13 +18,34 @@ function PendingRecipesAdmin() {
     setError(null);
     const token = localStorage.getItem('token');
     try {
+      console.log('Próba pobrania danych...');
       const response = await fetch('http://localhost:8080/api/v1/recipes/pending', {
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
       });
-      if (!response.ok) throw new Error('Błąd pobierania przepisów');
+      console.log('Status odpowiedzi:', response.status);
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Błąd odpowiedzi:', errorText);
+        throw new Error(`Błąd pobierania przepisów: ${response.status} ${errorText}`);
+      }
       const data = await response.json();
-      setPendingRecipes(data.content || []);
+      console.log('Otrzymane dane:', data);
+
+      // Sprawdzamy strukturę odpowiedzi
+      if (Array.isArray(data)) {
+        setPendingRecipes(data);
+      } else if (data.content && Array.isArray(data.content)) {
+        setPendingRecipes(data.content);
+      } else {
+        console.error('Nieoczekiwana struktura danych:', data);
+        setPendingRecipes([]);
+      }
     } catch (err) {
+      console.error('Błąd podczas pobierania danych:', err);
       setError(err.message);
     } finally {
       setLoading(false);

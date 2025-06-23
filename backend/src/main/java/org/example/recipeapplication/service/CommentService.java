@@ -35,7 +35,8 @@ public class CommentService {
         comment.setRecipe(recipe);
         comment.setAuthor(author);
         comment.setContent(dto.content());
-        comment.setRate(dto.rate());
+        comment.setLikesCount(dto.likesCount());
+        comment.setDislikesCount(dto.dislikesCount());
         comment.setDateOfCreation(new Timestamp(System.currentTimeMillis()));
 
         Comment saved = commentRepository.save(comment);
@@ -56,7 +57,8 @@ public class CommentService {
         return new CommentResponseDTO(
                 comment.getId(),
                 comment.getContent(),
-                comment.getRate(),
+                comment.getLikesCount(),
+                comment.getDislikesCount(),
                 new UserResponseDTO(
                         comment.getAuthor().getId(),
                         comment.getAuthor().getFirstName(),

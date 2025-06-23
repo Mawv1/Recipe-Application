@@ -26,7 +26,9 @@ public class Comment {
 
     private String content;
 
-    private Double rate;
+    private Integer likesCount;
+
+    private Integer dislikesCount;
 
     private Timestamp dateOfCreation;
 }

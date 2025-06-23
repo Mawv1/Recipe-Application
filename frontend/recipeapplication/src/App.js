@@ -10,8 +10,10 @@ import Login from './Login';
 import Register from './Register';
 import Profile from './Profile';
 import AddRecipe from './AddRecipe';
+import EditRecipe from './EditRecipe'; // Dodany import komponentu EditRecipe
 import AdminPanel from './admin/AdminPanel'
 import PendingRecipesAdmin from './admin/PendingRecipesAdmin';
+import AuthorizedImage from './components/AuthorizedImage'; // Dodajemy import komponentu AuthorizedImage
 
 function App() {
   const { t } = useTranslation();
@@ -42,7 +44,6 @@ function App() {
   // Nasłuchiwanie na zmiany w przepisach (oceny, ulubione)
   useEffect(() => {
     const handleRecipeChange = () => {
-      console.log("[App] Wykryto zmianę w przepisach, odświeżam listę");
       fetchRecipes();
     };
 
@@ -88,7 +89,7 @@ function App() {
                               {/* Zdjęcie główne */}
                               <div className="col-md-3">
                                 {recipe.mainImageUrl ? (
-                                  <img
+                                  <AuthorizedImage
                                     src={recipe.mainImageUrl}
                                     alt={recipe.title}
                                     className="img-fluid rounded"
@@ -134,7 +135,7 @@ function App() {
                                         className="badge rounded-pill bg-light text-dark border me-2 mb-2"
                                         style={{ padding: '6px 12px', fontSize: '0.85rem' }}
                                       >
-                                        {tag.name}
+                                        {tag}
                                       </span>
                                     ))
                                   ) : (
@@ -155,6 +156,7 @@ function App() {
         />
         <Route path="/recipes/:id" element={<RecipeDetails />} />
         <Route path="/add-recipe" element={<AddRecipe />} />
+        <Route path="/edit-recipe/:id" element={<EditRecipe />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/profile" element={<Profile />} />

@@ -23,3 +23,39 @@ form .form-select:focus {
   color: #ffc107;
   font-weight: bold;
 }
+
+/* Style dla obrazów w edytorze ReactQuill i w wyświetlanym opisie przepisu */
+.ql-editor img, .recipe-description img {
+  max-width: 100% !important;
+  height: auto !important;
+  display: block;
+  margin: 1rem auto;
+}
+
+/* Style dla podglądu zdjęcia */
+.image-preview-container {
+  max-width: 100%;
+  overflow: hidden;
+  margin-top: 10px;
+}
+
+.image-loading, .image-error, .image-placeholder {
+  padding: 20px;
+  text-align: center;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  margin-top: 10px;
+}
+
+.image-loading {
+  color: #0d6efd;
+}
+
+.image-error {
+  color: #dc3545;
+}
+
+.image-placeholder {
+  color: #6c757d;
+}
+

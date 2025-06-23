@@ -2,13 +2,13 @@ package org.example.recipeapplication.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.example.recipeapplication.dto.IngredientResponseDTO;
 import org.example.recipeapplication.dto.RecipeResponseDTO;
 import org.example.recipeapplication.dto.UserRequestDTO;
 import org.example.recipeapplication.dto.UserResponseDTO;
 import org.example.recipeapplication.model.AppUser;
 import org.example.recipeapplication.model.FollowedRecipe;
 import org.example.recipeapplication.model.Recipe;
-import org.example.recipeapplication.model.RecipeTag;
 import org.example.recipeapplication.repos.AppUserRepository;
 import org.example.recipeapplication.repos.FollowedRecipeRepository;
 import org.example.recipeapplication.repos.RecipeRepository;
@@ -17,6 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -73,7 +74,14 @@ public class UserService {
                 null, // author (unikamy cykliczności)
                 recipe.getDateOfCreation() != null ? recipe.getDateOfCreation().toLocalDateTime() : null,
                 recipe.getStatus(),
-                recipe.getTags() != null ? recipe.getTags() : List.of()
+                recipe.getTags() != null ? recipe.getTags() : List.of(),
+                recipe.getIngredients() != null ? recipe.getIngredients().stream()
+                        .map(ing -> new IngredientResponseDTO(
+                                ing.getId(),
+                                ing.getName(),
+                                ing.getAmount(),
+                                ing.getUnit()))
+                        .collect(Collectors.toList()) : List.of()
         );
     }
 

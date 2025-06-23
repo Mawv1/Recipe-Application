@@ -2,10 +2,7 @@ package org.example.recipeapplication.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.example.recipeapplication.dto.IngredientRequestDTO;
-import org.example.recipeapplication.dto.RecipeRequestDTO;
-import org.example.recipeapplication.dto.RecipeResponseDTO;
-import org.example.recipeapplication.dto.UserResponseDTO;
+import org.example.recipeapplication.dto.*;
 import org.example.recipeapplication.model.*;
 import org.example.recipeapplication.repos.AppUserRepository;
 import org.example.recipeapplication.repos.CategoryRepository;
@@ -148,6 +145,85 @@ public class RecipeService {
         }
     }
 
+    /**
+     * Aktualizuje istniejący przepis
+     * @param id identyfikator przepisu do aktualizacji
+     * @param dto dane z formularza aktualizacji przepisu
+     * @param email email użytkownika (sprawdzane uprawnienia)
+     * @return zaktualizowany przepis
+     * @throws EntityNotFoundException gdy przepis nie istnieje
+     * @throws SecurityException gdy użytkownik nie ma uprawnień do edycji przepisu
+     */
+    public RecipeResponseDTO updateRecipe(Long id, RecipeRequestDTO dto, String email) {
+        // Pobierz przepis z bazy
+        Recipe recipe = recipeRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Recipe not found with id: " + id));
+
+        // Pobierz użytkownika, aby sprawdzić jego rolę
+        AppUser user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with email: " + email));
+
+        // Sprawdź, czy użytkownik jest autorem przepisu lub administratorem
+        boolean isAdmin = user.getRole() != null &&
+                (user.getRole().name().equals("ADMIN") || user.getRole().name().equals("ROLE_ADMIN"));
+        boolean isAuthor = recipe.getAuthor().getEmail().equals(email);
+
+        if (!isAuthor && !isAdmin) {
+            throw new SecurityException("You are not authorized to update this recipe");
+        }
+
+        // Aktualizuj podstawowe pola
+        recipe.setTitle(dto.title());
+        recipe.setDescription(dto.description());
+        recipe.setEstimatedTimeToPrepare(dto.estimatedTimeToPrepare());
+
+        // Jeśli przesłano nowy URL zdjęcia, zaktualizuj go
+        if (dto.mainImageUrl() != null && !dto.mainImageUrl().isEmpty()) {
+            recipe.setMainImageUrl(dto.mainImageUrl());
+        }
+
+        // Zaktualizuj datę modyfikacji
+        recipe.setDateOfModification(new Timestamp(System.currentTimeMillis()));
+
+        // Zaktualizuj kategorię jeśli podano
+        if (dto.categoryId() != null) {
+            Category category = categoryRepository.findById(dto.categoryId())
+                    .orElseThrow(() -> new EntityNotFoundException("Category not found"));
+            recipe.setCategory(category);
+        }
+
+        // Usuń stare składniki i dodaj nowe
+        if (dto.ingredients() != null && !dto.ingredients().isEmpty()) {
+            // Usuń stare relacje ze składnikami
+            if (recipe.getIngredients() != null) {
+                // Nie usuwamy samych składników z bazy, tylko odłączamy je od przepisu
+                recipe.setIngredients(null);
+            }
+
+            // Dodaj nowe składniki
+            List<Ingredient> ingredients = dto.ingredients().stream()
+                    .map(ingredientDTO -> {
+                        Ingredient ing = new Ingredient();
+                        ing.setName(ingredientDTO.name());
+                        ing.setAmount(ingredientDTO.amount());
+                        ing.setUnit(ingredientDTO.unit());
+                        return ingredientRepository.save(ing);
+                    }).toList();
+
+            recipe.setIngredients(ingredients);
+        }
+
+        // Aktualizuj tagi, jeśli podano
+        if (dto.tags() != null) {
+            // Tagi są już listą stringów, nie potrzebujemy mapowania
+            recipe.setTags(dto.tags());
+        }
+
+        // Zapisz zaktualizowany przepis
+        Recipe saved = recipeRepository.save(recipe);
+        return mapToDTO(saved);
+    }
+
     private RecipeResponseDTO mapToDTO(Recipe recipe) {
         return new RecipeResponseDTO(
                 recipe.getId(),
@@ -169,7 +245,14 @@ public class RecipeService {
                 ),
                 recipe.getDateOfCreation() != null ? recipe.getDateOfCreation().toLocalDateTime() : null,
                 recipe.getStatus(),
-                recipe.getTags() != null ? recipe.getTags() : List.of()
+                recipe.getTags() != null ? recipe.getTags() : List.of(),
+                recipe.getIngredients() != null ? recipe.getIngredients().stream()
+                        .map(ing -> new IngredientResponseDTO(
+                                ing.getId(),
+                                ing.getName(),
+                                ing.getAmount(),
+                                ing.getUnit()))
+                        .collect(Collectors.toList()) : List.of()
         );
     }
 
@@ -193,11 +276,24 @@ public class RecipeService {
         Recipe recipe = recipeRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Recipe not found with id: " + id));
 
-        if (!recipe.getAuthor().getEmail().equals(email)) {
+        // Pobierz użytkownika, aby sprawdzić jego rolę
+        AppUser user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with email: " + email));
+
+        // Sprawdź, czy użytkownik jest autorem przepisu lub administratorem
+        boolean isAdmin = user.getRole() != null &&
+                (user.getRole().name().equals("ADMIN") || user.getRole().name().equals("ROLE_ADMIN"));
+        boolean isAuthor = recipe.getAuthor().getEmail().equals(email);
+
+        if (!isAuthor && !isAdmin) {
             throw new SecurityException("You are not authorized to delete this recipe.");
         }
 
         recipeRepository.delete(recipe);
     }
-}
 
+    public Page<RecipeResponseDTO> getMyRecipes(String email, Pageable pageable) {
+        return recipeRepository.findByAuthor_Email(email, pageable)
+                .map(this::mapToDTO);
+    }
+}

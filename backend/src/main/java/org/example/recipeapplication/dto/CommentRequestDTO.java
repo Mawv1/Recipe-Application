@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotNull;
 
 public record CommentRequestDTO(
         @NotBlank String content,
-        @Min(1) @Max(5) Double rate,
+        Integer likesCount,
+        Integer dislikesCount,
         @NotNull Long recipeId
 ) {}

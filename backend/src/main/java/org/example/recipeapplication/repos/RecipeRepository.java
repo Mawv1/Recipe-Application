@@ -29,5 +29,7 @@ public interface RecipeRepository extends JpaRepository<Recipe, Long> {
 
     Page<Recipe> findByAuthor(AppUser user, Pageable pageable);
 
+    Page<Recipe> findByAuthor_Email(String email, Pageable pageable);
+
     Page<Recipe> findByStatus(org.example.recipeapplication.model.RecipeStatus status, Pageable pageable);
 }

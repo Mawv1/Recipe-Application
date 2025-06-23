@@ -1,9 +1,11 @@
 package org.example.recipeapplication.controller;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.recipeapplication.dto.RecipeRequestDTO;
 import org.example.recipeapplication.dto.RecipeResponseDTO;
+import org.example.recipeapplication.dto.UserRequestDTO;
 import org.example.recipeapplication.service.RecipeService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -100,7 +102,7 @@ public class RecipeController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('RECIPE_DELETE')")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Void> deleteRecipe(
             @PathVariable Long id,
             @AuthenticationPrincipal UserDetails userDetails
@@ -140,5 +142,39 @@ public class RecipeController {
         return ResponseEntity.ok(updated);
     }
 
-//    @PatchMapping("/{id}/status")
+    @GetMapping("/my-recipes")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Page<RecipeResponseDTO>> getMyRecipes(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        if (userDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        Pageable pageable = PageRequest.of(page, size);
+        return ResponseEntity.ok(recipeService.getMyRecipes(userDetails.getUsername(), pageable));
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<RecipeResponseDTO> updateRecipe(
+            @PathVariable Long id,
+            @Valid @RequestBody RecipeRequestDTO recipeRequestDTO,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        if (userDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        try {
+            RecipeResponseDTO updatedRecipe = recipeService.updateRecipe(id, recipeRequestDTO, userDetails.getUsername());
+            return ResponseEntity.ok(updatedRecipe);
+        } catch (SecurityException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
 }

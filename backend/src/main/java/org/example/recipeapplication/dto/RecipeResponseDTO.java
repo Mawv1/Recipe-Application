@@ -17,6 +17,7 @@ public record RecipeResponseDTO(
         UserResponseDTO author,
         LocalDateTime dateOfCreation,
         RecipeStatus status,
-        List<String> tags
+        List<String> tags,
+        List<IngredientResponseDTO> ingredients
 ) {}
 

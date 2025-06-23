@@ -51,7 +51,7 @@ public class Recipe {
 
     private Timestamp dateOfModification;
 
-    @OneToMany
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
     private List<Ingredient> ingredients;
 
     @ManyToOne
