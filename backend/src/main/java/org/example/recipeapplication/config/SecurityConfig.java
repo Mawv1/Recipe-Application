@@ -43,12 +43,10 @@ public class SecurityConfig {
 
     // Endpointy związane z przeglądaniem przepisów, dostępne bez autentykacji
     private static final String[] PUBLIC_RECIPE_ENDPOINTS = {
-            "/api/v1/recipes",
             "/api/v1/recipes/search",
             "/api/v1/recipes/category/**",
             "/api/v1/recipes/user/**",
             "/api/v1/recipes/{id:[\\d]+}",
-            "/api/v1/recipes",
             "/api/v1/users/*/followed-recipes", // przeglądanie śledzonych przepisów innych użytkowników
             "/api/v1/users/email/*", // wyszukiwanie użytkownika po emailu
             "/api/v1/users/*/password"
@@ -76,6 +74,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(req ->
                         req.requestMatchers(WHITE_LIST_URL)
                                 .permitAll()
+                                // Jawnie dodajemy endpoint uwierzytelniania, aby upewnić się, że jest dostępny
+                                .requestMatchers("/api/v1/auth/authenticate")
+                                .permitAll()
                                 // Publiczne endpointy - tylko GET
                                 .requestMatchers(GET, PUBLIC_RECIPE_ENDPOINTS)
                                 .permitAll()
@@ -85,6 +86,8 @@ public class SecurityConfig {
                                 .authenticated()
                                 .requestMatchers(DELETE, "/api/v1/users/me/followed-recipes/*")
                                 .authenticated()
+                                .requestMatchers(GET, "/api/v1/users")
+                                .hasAuthority("ADMIN")
                                 .requestMatchers(POST, "/api/v1/recipes/*/follow")
                                 .authenticated()
                                 .requestMatchers(DELETE, "/api/v1/recipes/*/follow")
@@ -106,6 +109,26 @@ public class SecurityConfig {
                                 .authenticated()
                                 .requestMatchers(GET, "/api/v1/recipes/pending")
                                 .hasAuthority("ADMIN")
+
+                                // Konfiguracja zabezpieczeń dla endpointów komentarzy
+                                .requestMatchers(GET, "/api/v1/recipes/*/comments")
+                                .permitAll()  // Przeglądanie komentarzy dostępne dla wszystkich
+                                .requestMatchers(GET, "/api/v1/comments/*")
+                                .permitAll()  // Pobieranie pojedynczego komentarza dostępne dla wszystkich
+                                .requestMatchers(POST, "/api/v1/recipes/{id:[\\d]+}/comments")
+                                .authenticated()  // Dodawanie komentarzy tylko dla zalogowanych (dokładniejsza ścieżka)
+                                .requestMatchers(POST, "/api/v1/recipes/*/comments")
+                                .authenticated()  // Dodawanie komentarzy tylko dla zalogowanych
+                                .requestMatchers(DELETE, "/api/v1/comments/*")
+                                .authenticated()  // Usuwanie komentarzy tylko dla zalogowanych
+                                .requestMatchers(DELETE, "/api/v1/recipes/comments/*")
+                                .authenticated()  // Stara ścieżka (dla kompatybilności wstecznej)
+
+                                // Konfiguracja dla reakcji na komentarze
+                                .requestMatchers("/api/v1/comments/*/like", "/api/v1/comments/*/dislike", "/api/v1/comments/*/reaction", "/api/v1/comments/*/user-reaction",
+                                                "/api/v1/comments/*/liked", "/api/v1/comments/*/disliked")
+                                .authenticated()  // Reakcje na komentarze tylko dla zalogowanych
+
                                 .requestMatchers(POST, "/api/v1/recipes/*/rate")
                                 .authenticated()
                                 .requestMatchers(GET, "/api/v1/categories")

@@ -3,9 +3,11 @@ package org.example.recipeapplication.controller;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.example.recipeapplication.dto.CommentRequestDTO;
+import org.example.recipeapplication.dto.CommentResponseDTO;
 import org.example.recipeapplication.dto.RecipeRequestDTO;
 import org.example.recipeapplication.dto.RecipeResponseDTO;
-import org.example.recipeapplication.dto.UserRequestDTO;
+import org.example.recipeapplication.service.CommentService;
 import org.example.recipeapplication.service.RecipeService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -27,6 +29,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class RecipeController {
     private final RecipeService recipeService;
+    private final CommentService commentService;
 
     @GetMapping
     public ResponseEntity<Page<RecipeResponseDTO>> getAllRecipes(
@@ -176,5 +179,46 @@ public class RecipeController {
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @GetMapping("/{id}/comments")
+    public ResponseEntity<Map<String, Object>> getRecipeComments(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+        Map<String, Object> commentsData = recipeService.getRecipeComments(id, pageable);
+        return ResponseEntity.ok(commentsData);
+    }
+
+    @PostMapping("/{id}/comments")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<CommentResponseDTO> addComment(
+            @PathVariable Long id,
+            @Valid @RequestBody CommentRequestDTO commentRequestDTO,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        // Ustawienie recipeId z parametru ścieżki URL zamiast polegania na JSON
+        CommentResponseDTO savedComment = commentService.addComment(
+            new CommentRequestDTO(
+                commentRequestDTO.content(),
+                commentRequestDTO.likesCount(),
+                commentRequestDTO.dislikesCount(),
+                id  // używamy id z URL zamiast z requestDTO
+            ),
+            userDetails.getUsername()
+        );
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedComment);
+    }
+
+    @DeleteMapping("/comments/{commentId}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Void> deleteComment(
+            @PathVariable Long commentId,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        commentService.deleteComment(commentId);
+        return ResponseEntity.noContent().build();
     }
 }

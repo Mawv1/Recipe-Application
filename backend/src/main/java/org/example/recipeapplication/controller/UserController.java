@@ -18,6 +18,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -26,6 +27,15 @@ import java.util.Map;
 public class UserController {
     private final UserService userService;
     private final FollowedRecipeService followedRecipeService;
+
+    /**
+     * Endpoint do pobierania wszystkich użytkowników
+     */
+    @GetMapping
+    public ResponseEntity<List<UserResponseDTO>> getAllUsers() {
+        List<UserResponseDTO> users = userService.getAllUsers();
+        return ResponseEntity.ok(users);
+    }
 
     @PutMapping("/{id}")
     public UserResponseDTO updateProfile(@PathVariable Long id, @org.springframework.web.bind.annotation.RequestBody UserRequestDTO userRequestDTO) {
@@ -178,5 +188,4 @@ public class UserController {
         }
     }
 }
-
 

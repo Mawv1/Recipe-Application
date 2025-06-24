@@ -354,18 +354,32 @@ function AddRecipe() {
     }
 
     try {
-      // Przygotowanie danych do wysłania - tagi jako lista stringów, nie obiektów
+      // Przygotowujemy tagi jako listę stringów zgodnie z modelem Recipe.java, tak jak w EditRecipe.js
+      const formattedTags = tags
+        .filter(tag => tag && tag.trim() !== '')
+        .map(tag => tag.trim());
+
+      console.log('Przygotowane tagi po formatowaniu:', formattedTags);
+
+      // Próba konwersji estimatedTimeToPrepare na liczbę, jeśli zawiera tylko cyfry
+      let prepTime = estimatedTimeToPrepare;
+      const timeMatch = estimatedTimeToPrepare.match(/^\d+$/);
+      if (timeMatch) {
+        prepTime = parseInt(estimatedTimeToPrepare, 10);
+      }
+
+      // Przygotowanie danych do wysłania - dokładnie w takim samym formacie jak w EditRecipe.js
       const recipeData = {
         title,
         description,
         categoryId: parseInt(categoryId),
-        estimatedTimeToPrepare,
+        estimatedTimeToPrepare: prepTime,
         mainImageUrl,
-        ingredients: ingredients.filter(ing => ing.name),
-        tags: tags.filter(tag => tag.length > 0)
+        ingredients: ingredients.filter(ing => ing.name.trim() !== ''),
+        tags: formattedTags
       };
 
-      console.log('Wysyłane dane:', recipeData);
+      console.log('Wysyłane dane (kompletny obiekt):', JSON.stringify(recipeData, null, 2));
 
       // Wysłanie żądania do API
       const response = await fetch('http://localhost:8080/api/v1/recipes', {

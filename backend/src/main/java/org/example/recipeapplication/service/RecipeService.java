@@ -14,7 +14,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.sql.Timestamp;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -27,6 +29,8 @@ public class RecipeService {
     private final AppUserRepository userRepository;
     private final IngredientRepository ingredientRepository;
     private final FileStorageService fileStorageService;
+    private final CommentService commentService; // Dodanie CommentService
+    private final UserAdminService userAdminService; // Dodanie UserAdminService
 
     public Page<RecipeResponseDTO> getAllRecipes(Pageable pageable) {
         return recipeRepository.findByStatus(org.example.recipeapplication.model.RecipeStatus.ACCEPTED, pageable)
@@ -51,6 +55,16 @@ public class RecipeService {
     }
 
     public RecipeResponseDTO addRecipe(RecipeRequestDTO dto, String email) {
+        // Pobierz użytkownika z bazy
+        AppUser author = userRepository.findByEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException("Author not found with username: " + email));
+
+        // Sprawdź czy użytkownik nie jest zablokowany
+        if (author.isBanned()) {
+            throw new SecurityException("User is banned and cannot add recipes. Reason: " +
+                (author.getBanReason() != null ? author.getBanReason() : "Not specified"));
+        }
+
         Recipe recipe = new Recipe();
         recipe.setTitle(dto.title());
         recipe.setDescription(dto.description());
@@ -62,8 +76,6 @@ public class RecipeService {
         recipe.setFavoritesCount(0);
         recipe.setStatus(org.example.recipeapplication.model.RecipeStatus.PENDING);
 
-        AppUser author = userRepository.findByEmail(email)
-                .orElseThrow(() -> new EntityNotFoundException("Author not found with username: " + email));
         recipe.setAuthor(author);
 
         Category category = categoryRepository.findById(dto.categoryId())
@@ -81,6 +93,11 @@ public class RecipeService {
                 }).toList();
 
         recipe.setIngredients(ingredients);
+
+        // Dodawanie tagów do przepisu, analogicznie jak przy aktualizacji
+        if (dto.tags() != null) {
+            recipe.setTags(dto.tags());
+        }
 
         Recipe saved = recipeRepository.save(recipe);
         return mapToDTO(saved);
@@ -252,6 +269,25 @@ public class RecipeService {
                                 ing.getName(),
                                 ing.getAmount(),
                                 ing.getUnit()))
+                        .collect(Collectors.toList()) : List.of(),
+                // Dodajemy komentarze do DTO
+                recipe.getComments() != null ? recipe.getComments().stream()
+                        .map(comment -> new CommentResponseDTO(
+                                comment.getId(),
+                                comment.getContent(),
+                                comment.getLikesCount(),
+                                comment.getDislikesCount(),
+                                new UserResponseDTO(
+                                        comment.getAuthor().getId(),
+                                        comment.getAuthor().getFirstName(),
+                                        comment.getAuthor().getLastName(),
+                                        comment.getAuthor().getProfilePicture(),
+                                        comment.getAuthor().getEmail(),
+                                        comment.getAuthor().getRole() != null ? comment.getAuthor().getRole().name() : null,
+                                        null
+                                ),
+                                comment.getDateOfCreation().toLocalDateTime()
+                        ))
                         .collect(Collectors.toList()) : List.of()
         );
     }
@@ -295,5 +331,21 @@ public class RecipeService {
     public Page<RecipeResponseDTO> getMyRecipes(String email, Pageable pageable) {
         return recipeRepository.findByAuthor_Email(email, pageable)
                 .map(this::mapToDTO);
+    }
+
+    public Map<String, Object> getRecipeComments(Long recipeId, Pageable pageable) {
+        // Sprawdź czy przepis istnieje
+        Recipe recipe = recipeRepository.findById(recipeId)
+                .orElseThrow(() -> new EntityNotFoundException("Recipe not found with id: " + recipeId));
+
+        // Pobierz komentarze od CommentService
+        List<CommentResponseDTO> comments = commentService.getRecipeComments(recipeId);
+
+        // Przygotuj dane do zwrotu (może być później rozbudowane o paginację)
+        Map<String, Object> result = new HashMap<>();
+        result.put("comments", comments);
+        result.put("totalItems", comments.size());
+
+        return result;
     }
 }

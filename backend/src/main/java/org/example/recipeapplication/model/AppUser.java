@@ -38,6 +38,13 @@ public class AppUser implements UserDetails {
     @OneToMany(mappedBy = "author")
     private List<Recipe> recipes;
 
+    // Pole określające czy użytkownik jest zablokowany - opcjonalne, z wartością domyślną false
+    @Column(name = "banned", columnDefinition = "boolean default false")
+    private boolean banned = false;
+
+    // Powód blokady (opcjonalny)
+    private String banReason;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Set<SimpleGrantedAuthority> authorities = role.getPermissions()
@@ -67,6 +74,14 @@ public class AppUser implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
+        // Konto zablokowane jeśli banned == true
+        if (banned) {
+            String message = "Twoje konto zostało zablokowane";
+            if (banReason != null && !banReason.isEmpty()) {
+                message += ". Powód: " + banReason;
+            }
+            throw new org.springframework.security.authentication.LockedException(message);
+        }
         return true;
     }
 

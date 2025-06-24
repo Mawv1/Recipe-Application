@@ -2,10 +2,7 @@ package org.example.recipeapplication.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.example.recipeapplication.dto.IngredientResponseDTO;
-import org.example.recipeapplication.dto.RecipeResponseDTO;
-import org.example.recipeapplication.dto.UserRequestDTO;
-import org.example.recipeapplication.dto.UserResponseDTO;
+import org.example.recipeapplication.dto.*;
 import org.example.recipeapplication.model.AppUser;
 import org.example.recipeapplication.model.FollowedRecipe;
 import org.example.recipeapplication.model.Recipe;
@@ -46,6 +43,22 @@ public class UserService {
         return followedRecipeRepository.findByUser(user);
     }
 
+    /**
+     * Pobiera listę wszystkich użytkowników
+     * @return Lista użytkowników w formie DTO
+     */
+    public List<UserResponseDTO> getAllUsers() {
+        List<AppUser> users = userRepository.findAll();
+        return users.stream()
+                .map(user -> {
+                    // Pobierz przepisy użytkownika z repozytorium, aby wymusić inicjalizację kolekcji
+                    List<Recipe> recipes = recipeRepository.findByAuthor(user, Pageable.unpaged()).getContent();
+                    user.setRecipes(recipes);
+                    return mapToDTO(user);
+                })
+                .collect(Collectors.toList());
+    }
+
     private UserResponseDTO mapToDTO(AppUser user) {
         // Pobierz listę przepisów użytkownika i zmapuj do RecipeResponseDTO
         List<RecipeResponseDTO> recipes = user.getRecipes() != null ?
@@ -81,7 +94,24 @@ public class UserService {
                                 ing.getName(),
                                 ing.getAmount(),
                                 ing.getUnit()))
-                        .collect(Collectors.toList()) : List.of()
+                        .collect(Collectors.toList()) : List.of(),
+                recipe.getComments() != null ? recipe.getComments().stream()
+                        .map(comment -> new CommentResponseDTO(
+                                comment.getId(),
+                                comment.getContent(),
+                                comment.getLikesCount(),
+                                comment.getDislikesCount(),
+                                new UserResponseDTO(
+                                        comment.getAuthor().getId(),
+                                        comment.getAuthor().getFirstName(),
+                                        comment.getAuthor().getLastName(),
+                                        comment.getAuthor().getProfilePicture(),
+                                        comment.getAuthor().getEmail(),
+                                        null, // rola nie jest potrzebna w komentarzu
+                                        null // nie pobieramy przepisów autora w komentarzu
+                                ),
+                                comment.getDateOfCreation() != null ? comment.getDateOfCreation().toLocalDateTime() : null
+                        )).collect(Collectors.toList()) : List.of()
         );
     }
 

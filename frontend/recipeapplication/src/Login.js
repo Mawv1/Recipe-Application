@@ -21,7 +21,52 @@ function Login() {
         body: JSON.stringify({ email, password })
       });
 
-      if (!res.ok) throw new Error(t('invalidEmailOrPassword'));
+      // Sprawdzenie odpowiedzi z serwera
+      if (!res.ok) {
+        const errorText = await res.text();
+        let errorMessage = t('invalidEmailOrPassword');
+
+        // Próbuj parsować odpowiedź jako JSON
+        try {
+          const errorJson = JSON.parse(errorText);
+          console.log("Odpowiedź błędu:", errorJson); // Dodajemy log dla debugowania
+
+          // Sprawdzenie, czy użytkownik jest zbanowany
+          if (res.status === 403 || res.status === 401) {
+            // Sprawdź czy error zawiera informację o blokadzie konta
+            if (errorJson.error && (
+                errorJson.error.toLowerCase().includes('zablokowane') ||
+                errorJson.error.toLowerCase().includes('konto'))) {
+              // Użyj bezpośrednio wiadomości z serwera, która zawiera powód bana
+              errorMessage = errorJson.message || t('accountBanned', 'Twoje konto zostało zablokowane.');
+            }
+            // Sprawdź message pod kątem informacji o blokadzie
+            else if (errorJson.message && (
+                errorJson.message.toLowerCase().includes('zablokowane') ||
+                errorJson.message.toLowerCase().includes('locked') ||
+                errorJson.message.toLowerCase().includes('ban') ||
+                errorJson.message.toLowerCase().includes('block'))) {
+              errorMessage = errorJson.message;
+            }
+          }
+
+          // Jeśli jest dostępny jakikolwiek komunikat błędu, użyj go
+          if (errorJson.message && errorMessage === t('invalidEmailOrPassword')) {
+            errorMessage = errorJson.message;
+          }
+        } catch (e) {
+          console.log("Błąd parsowania JSON:", e, "Tekst odpowiedzi:", errorText);
+          // Jeśli odpowiedź nie jest w JSON, sprawdź zawartość tekstu
+          if (errorText.toLowerCase().includes('locked') ||
+              errorText.toLowerCase().includes('ban') ||
+              errorText.toLowerCase().includes('block') ||
+              errorText.toLowerCase().includes('zablokowa')) {
+            errorMessage = t('accountBanned', 'Twoje konto zostało zablokowane.');
+          }
+        }
+
+        throw new Error(errorMessage);
+      }
 
       const data = await res.json();
 
@@ -35,7 +80,7 @@ function Login() {
       // Zapisz token w localStorage
       localStorage.setItem('token', data.access_token);
 
-      // Zapisz te�� refresh token jeśli istnieje
+      // Zapisz refresh token jeśli istnieje
       if (data.refresh_token) {
         localStorage.setItem('refresh_token', data.refresh_token);
       }

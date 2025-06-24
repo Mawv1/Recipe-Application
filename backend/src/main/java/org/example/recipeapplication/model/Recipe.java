@@ -61,6 +61,10 @@ public class Recipe {
     @OneToMany
     private List<RecipeImage> images;
 
+    // Komentarze do przepisu
+    @OneToMany(mappedBy = "recipe", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
+    private List<Comment> comments;
+
     // Zmiana z listy obiektów RecipeTag na listę stringów
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "recipe_tags", joinColumns = @JoinColumn(name = "recipe_id"))

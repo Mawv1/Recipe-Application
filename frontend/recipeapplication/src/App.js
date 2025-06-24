@@ -13,6 +13,7 @@ import AddRecipe from './AddRecipe';
 import EditRecipe from './EditRecipe'; // Dodany import komponentu EditRecipe
 import AdminPanel from './admin/AdminPanel'
 import PendingRecipesAdmin from './admin/PendingRecipesAdmin';
+import Users from './admin/Users'; // Dodajemy import komponentu Users
 import AuthorizedImage from './components/AuthorizedImage'; // Dodajemy import komponentu AuthorizedImage
 
 function App() {
@@ -165,6 +166,7 @@ function App() {
         <Route path="/admin" element={<AdminPanel />}>
           <Route index element={<PendingRecipesAdmin />} />
           <Route path="pending-recipes" element={<PendingRecipesAdmin />} />
+          <Route path="users" element={<Users />} />
         </Route>
       </Routes>
       <Footer />

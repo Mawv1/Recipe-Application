@@ -18,10 +18,12 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne
+    @ManyToOne
+    @JoinColumn(name = "author_id", unique = false)
     private AppUser author;
 
-    @OneToOne
+    @ManyToOne
+    @JoinColumn(name = "recipe_id", unique = false)
     private Recipe recipe;
 
     private String content;

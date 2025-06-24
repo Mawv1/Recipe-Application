@@ -36,4 +36,27 @@ public class LogoutService implements LogoutHandler {
             SecurityContextHolder.clearContext();
         }
     }
+
+    /**
+     * Unieważnia wszystkie aktywne tokeny użytkownika o podanym ID.
+     * Użycie tego powoduje wylogowanie użytkownika ze wszystkich sesji.
+     *
+     * @param userId ID użytkownika
+     * @return Liczba unieważnionych tokenów
+     */
+    public int revokeAllUserTokens(Long userId) {
+        var validUserTokens = tokenRepository.findAllValidTokenByUser(userId);
+        if (validUserTokens.isEmpty()) {
+            return 0;
+        }
+
+        validUserTokens.forEach(token -> {
+            token.setExpired(true);
+            token.setRevoked(true);
+        });
+
+        tokenRepository.saveAll(validUserTokens);
+        SecurityContextHolder.clearContext();
+        return validUserTokens.size();
+    }
 }
