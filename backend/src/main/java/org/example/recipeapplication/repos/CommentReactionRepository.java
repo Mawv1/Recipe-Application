@@ -19,13 +19,19 @@ public interface CommentReactionRepository extends JpaRepository<CommentReaction
     // Wyszukiwanie wszystkich reakcji na dany komentarz
     List<CommentReaction> findByCommentId(Long commentId);
 
-    // Zliczanie pozytywnych reakcji (like) dla komentarza
-    @Query("SELECT COUNT(cr) FROM CommentReaction cr WHERE cr.comment.id = :commentId AND cr.reactionType = org.example.recipeapplication.model.CommentReaction.ReactionType.LIKE")
-    int countLikesForComment(@Param("commentId") Long commentId);
+    // Zliczanie reakcji dla komentarza według typu
+    @Query("SELECT COUNT(cr) FROM CommentReaction cr WHERE cr.comment.id = :commentId AND cr.reactionType = :reactionType")
+    int countReactionsForCommentByType(@Param("commentId") Long commentId, @Param("reactionType") ReactionType reactionType);
 
-    // Zliczanie negatywnych reakcji (dislike) dla komentarza
-    @Query("SELECT COUNT(cr) FROM CommentReaction cr WHERE cr.comment.id = :commentId AND cr.reactionType = org.example.recipeapplication.model.CommentReaction.ReactionType.DISLIKE")
-    int countDislikesForComment(@Param("commentId") Long commentId);
+    // Metoda pomocnicza do zliczania like'ów
+    default int countLikesForComment(Long commentId) {
+        return countReactionsForCommentByType(commentId, ReactionType.LIKE);
+    }
+
+    // Metoda pomocnicza do zliczania dislike'ów
+    default int countDislikesForComment(Long commentId) {
+        return countReactionsForCommentByType(commentId, ReactionType.DISLIKE);
+    }
 
     // Usuwanie reakcji użytkownika na komentarz
     void deleteByUserIdAndCommentId(Long userId, Long commentId);

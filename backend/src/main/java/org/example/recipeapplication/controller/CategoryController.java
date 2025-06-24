@@ -1,5 +1,7 @@
 package org.example.recipeapplication.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.example.recipeapplication.dto.CategoryRequestDTO;
 import org.example.recipeapplication.dto.CategoryResponseDTO;
@@ -14,10 +16,13 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/categories")
 @RequiredArgsConstructor
+@Tag(name = "Kategorie", description = "Operacje związane z kategoriami przepisów")
 public class CategoryController {
     private final CategoryService categoryService;
 
     @GetMapping
+    @Operation(summary = "Pobierz wszystkie kategorie",
+              description = "Zwraca listę wszystkich dostępnych kategorii przepisów")
     public List<CategoryResponseDTO> getAllCategories() {
         return categoryService.getAllCategories();
     }
@@ -25,6 +30,8 @@ public class CategoryController {
     @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "Dodaj nową kategorię",
+              description = "Tworzy nową kategorię przepisów. Wymaga uprawnień administratora.")
     public CategoryResponseDTO addCategory(@RequestBody CategoryRequestDTO categoryRequestDTO) {
         return categoryService.addCategory(categoryRequestDTO);
     }
@@ -37,6 +44,8 @@ public class CategoryController {
     @PreAuthorize("hasAuthority('ADMIN')")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(summary = "Usuń kategorię",
+              description = "Usuwa kategorię o podanym ID. Wymaga uprawnień administratora.")
     public void deleteCategory(@PathVariable Long id) {
         categoryService.deleteCategory(id);
     }

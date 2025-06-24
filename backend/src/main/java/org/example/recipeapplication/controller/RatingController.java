@@ -1,5 +1,7 @@
 package org.example.recipeapplication.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.recipeapplication.dto.RatingRequestDTO;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/recipes")
 @RequiredArgsConstructor
+@Tag(name = "Oceny", description = "Operacje związane z ocenami przepisów")
 public class RatingController {
 
     private final RatingService ratingService;
@@ -25,6 +28,8 @@ public class RatingController {
      */
     @PostMapping("/{recipeId}/rate")
     @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "Dodaj ocenę przepisu",
+              description = "Dodaje nową ocenę przepisu lub aktualizuje istniejącą. Wymaga uwierzytelnienia.")
     public ResponseEntity<RatingResponseDTO> addOrUpdateRating(
             @PathVariable Long recipeId,
             @RequestParam(required = false) Integer value,
@@ -48,6 +53,8 @@ public class RatingController {
      */
     @PutMapping("/{recipeId}/rating")
     @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "Aktualizuj ocenę przepisu",
+              description = "Aktualizuje istniejącą ocenę przepisu. Wymaga uwierzytelnienia.")
     public ResponseEntity<RatingResponseDTO> updateRating(
             @PathVariable Long recipeId,
             @RequestParam(required = false) Integer value,
@@ -76,6 +83,8 @@ public class RatingController {
      */
     @GetMapping("/{recipeId}/rating")
     @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "Pobierz ocenę użytkownika",
+              description = "Pobiera ocenę wystawioną przez zalogowanego użytkownika dla określonego przepisu. Wymaga uwierzytelnienia.")
     public ResponseEntity<RatingResponseDTO> getUserRating(
             @PathVariable Long recipeId,
             @AuthenticationPrincipal UserDetails userDetails
@@ -92,6 +101,8 @@ public class RatingController {
      */
     @DeleteMapping("/{recipeId}/rating")
     @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "Usuń ocenę przepisu",
+              description = "Usuwa ocenę wystawioną przez zalogowanego użytkownika dla określonego przepisu. Wymaga uwierzytelnienia.")
     public ResponseEntity<Void> deleteRating(
             @PathVariable Long recipeId,
             @AuthenticationPrincipal UserDetails userDetails

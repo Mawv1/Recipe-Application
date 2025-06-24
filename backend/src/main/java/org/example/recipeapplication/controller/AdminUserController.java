@@ -1,5 +1,7 @@
 package org.example.recipeapplication.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.example.recipeapplication.config.LogoutService;
@@ -19,6 +21,7 @@ import java.util.Map;
 @RequestMapping("/api/v1/admin/users")
 @RequiredArgsConstructor
 @PreAuthorize("hasAnyAuthority('ADMIN')")  // Tylko administratorzy mają dostęp do tego kontrolera
+@Tag(name = "Administrator - Zarządzanie Użytkownikami", description = "Endpointy do zarządzania użytkownikami, dostępne tylko dla administratorów")
 public class AdminUserController {
 
     private final UserAdminService userAdminService;
@@ -28,6 +31,8 @@ public class AdminUserController {
      * Endpoint do blokowania użytkownika i wylogowania go z systemu
      */
     @PutMapping("/{userId}/ban")
+    @Operation(summary = "Zablokuj użytkownika",
+               description = "Blokuje konto użytkownika i wylogowuje go ze wszystkich aktywnych sesji. Wymaga uprawnień administratora.")
     public ResponseEntity<?> banUser(
             @PathVariable Long userId,
             @RequestParam(required = false) String reason) {
@@ -49,6 +54,8 @@ public class AdminUserController {
      * Endpoint do odblokowania użytkownika
      */
     @PutMapping("/{userId}/unban")
+    @Operation(summary = "Odblokuj użytkownika",
+               description = "Odblokowuje konto użytkownika, umożliwiając mu ponowne logowanie. Wymaga uprawnień administratora.")
     public ResponseEntity<UserResponseDTO> unbanUser(@PathVariable Long userId) {
         UserResponseDTO unbannedUser = userAdminService.unbanUser(userId);
         return ResponseEntity.ok(unbannedUser);
@@ -58,6 +65,8 @@ public class AdminUserController {
      * Sprawdza status blokady użytkownika
      */
     @GetMapping("/{userId}/ban-status")
+    @Operation(summary = "Sprawdź status blokady użytkownika",
+               description = "Zwraca informację, czy konto użytkownika jest zablokowane. Wymaga uprawnień administratora.")
     public ResponseEntity<Boolean> checkBanStatus(@PathVariable Long userId) {
         boolean isBanned = userAdminService.isUserBanned(userId);
         return ResponseEntity.ok(isBanned);

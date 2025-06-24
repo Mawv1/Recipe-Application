@@ -1,5 +1,7 @@
 package org.example.recipeapplication.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import lombok.RequiredArgsConstructor;
 import org.example.recipeapplication.dto.CommentRequestDTO;
@@ -20,21 +22,28 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/v1/comments")
 @RequiredArgsConstructor
+@Tag(name = "Komentarze", description = "Operacje związane z komentarzami do przepisów")
 public class CommentController {
     private final CommentService commentService;
 
     @GetMapping("/recipe/{recipeId}")
+    @Operation(summary = "Pobierz komentarze przepisu",
+              description = "Zwraca listę wszystkich komentarzy dla konkretnego przepisu")
     public List<CommentResponseDTO> getRecipeComments(@PathVariable Long recipeId) {
         return commentService.getRecipeComments(recipeId);
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Pobierz komentarz po ID",
+              description = "Zwraca szczegóły pojedynczego komentarza o podanym ID")
     public ResponseEntity<CommentResponseDTO> getCommentById(@PathVariable Long id) {
         return ResponseEntity.ok(commentService.getCommentById(id));
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "Usuń komentarz",
+              description = "Usuwa komentarz o podanym ID. Wymaga uwierzytelnienia - tylko autor komentarza lub administrator może go usunąć.")
     public ResponseEntity<Void> deleteComment(
             @PathVariable Long id,
             @AuthenticationPrincipal UserDetails userDetails) {
@@ -50,6 +59,8 @@ public class CommentController {
 
     @PostMapping("/{commentId}/like")
     @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "Dodaj pozytywną reakcję do komentarza",
+              description = "Dodaje reakcję 'lubię to' do komentarza. Wymaga uwierzytelnienia.")
     public ResponseEntity<CommentResponseDTO> addLike(
             @PathVariable Long commentId,
             @AuthenticationPrincipal UserDetails userDetails) {
@@ -59,6 +70,8 @@ public class CommentController {
 
     @DeleteMapping("/{commentId}/reaction")
     @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "Usuń reakcję z komentarza",
+              description = "Usuwa reakcję użytkownika z komentarza. Wymaga uwierzytelnienia.")
     public ResponseEntity<CommentResponseDTO> removeReaction(
             @PathVariable Long commentId,
             @AuthenticationPrincipal UserDetails userDetails) {
@@ -68,6 +81,8 @@ public class CommentController {
 
     @PostMapping("/{commentId}/dislike")
     @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "Dodaj negatywną reakcję do komentarza",
+              description = "Dodaje reakcję 'nie lubię' do komentarza. Wymaga uwierzytelnienia.")
     public ResponseEntity<CommentResponseDTO> addDislike(
             @PathVariable Long commentId,
             @AuthenticationPrincipal UserDetails userDetails) {
@@ -77,6 +92,8 @@ public class CommentController {
 
     @GetMapping("/{commentId}/user-reaction")
     @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "Sprawdź reakcję użytkownika na komentarz",
+              description = "Zwraca informację o tym, jaką reakcję użytkownik dodał do komentarza. Wymaga uwierzytelnienia.")
     public ResponseEntity<Map<String, Boolean>> getUserReaction(
             @PathVariable Long commentId,
             @AuthenticationPrincipal UserDetails userDetails) {
@@ -92,6 +109,8 @@ public class CommentController {
 
     @GetMapping("/{commentId}/liked")
     @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "Sprawdź czy użytkownik polubił komentarz",
+              description = "Zwraca informację, czy zalogowany użytkownik dodał pozytywną reakcję do komentarza. Wymaga uwierzytelnienia.")
     public ResponseEntity<Boolean> isCommentLikedByUser(
             @PathVariable Long commentId,
             @AuthenticationPrincipal UserDetails userDetails) {
@@ -101,6 +120,8 @@ public class CommentController {
 
     @GetMapping("/{commentId}/disliked")
     @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "Sprawdź czy użytkownik nie polubił komentarza",
+              description = "Zwraca informację, czy zalogowany użytkownik dodał negatywną reakcję do komentarza. Wymaga uwierzytelnienia.")
     public ResponseEntity<Boolean> isCommentDislikedByUser(
             @PathVariable Long commentId,
             @AuthenticationPrincipal UserDetails userDetails) {

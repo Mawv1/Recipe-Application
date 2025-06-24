@@ -45,6 +45,107 @@ function Profile() {
     confirmPassword: ''
   });
 
+  // Stany do walidacji formularza hasła
+  const [passwordErrors, setPasswordErrors] = useState({});
+  const [passwordTouched, setPasswordTouched] = useState({
+    currentPassword: false,
+    newPassword: false,
+    confirmPassword: false
+  });
+  const [passwordStrength, setPasswordStrength] = useState({
+    length: false,
+    uppercase: false,
+    number: false,
+    special: false
+  });
+
+  // Walidacja hasła przy każdej zmianie
+  useEffect(() => {
+    if (passwordData.newPassword) {
+      const strength = {
+        length: passwordData.newPassword.length >= 8,
+        uppercase: /[A-Z]/.test(passwordData.newPassword),
+        number: /[0-9]/.test(passwordData.newPassword),
+        special: /[!@#$%^&*(),.?":{}|<>]/.test(passwordData.newPassword)
+      };
+      setPasswordStrength(strength);
+
+      if (passwordTouched.newPassword) {
+        validateNewPassword();
+      }
+    }
+  }, [passwordData.newPassword]);
+
+  // Funkcje walidacyjne dla hasła
+  const validateCurrentPassword = () => {
+    if (!passwordData.currentPassword) {
+      setPasswordErrors(prev => ({
+        ...prev,
+        currentPassword: t('currentPasswordRequired', 'Obecne hasło jest wymagane')
+      }));
+      return false;
+    }
+
+    setPasswordErrors(prev => ({ ...prev, currentPassword: null }));
+    return true;
+  };
+
+  const validateNewPassword = () => {
+    if (!passwordData.newPassword) {
+      setPasswordErrors(prev => ({
+        ...prev,
+        newPassword: t('newPasswordRequired', 'Nowe hasło jest wymagane')
+      }));
+      return false;
+    }
+
+    const allRequirementsMet =
+      passwordStrength.length &&
+      passwordStrength.uppercase &&
+      passwordStrength.number &&
+      passwordStrength.special;
+
+    if (!allRequirementsMet) {
+      setPasswordErrors(prev => ({
+        ...prev,
+        newPassword: t('invalidPassword', 'Hasło nie spełnia wymagań bezpieczeństwa')
+      }));
+      return false;
+    }
+
+    setPasswordErrors(prev => ({ ...prev, newPassword: null }));
+    return true;
+  };
+
+  const validateConfirmPassword = () => {
+    if (!passwordData.confirmPassword) {
+      setPasswordErrors(prev => ({
+        ...prev,
+        confirmPassword: t('confirmPasswordRequired', 'Potwierdzenie hasła jest wymagane')
+      }));
+      return false;
+    }
+
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      setPasswordErrors(prev => ({
+        ...prev,
+        confirmPassword: t('passwordsDoNotMatch', 'Hasła nie pasują do siebie')
+      }));
+      return false;
+    }
+
+    setPasswordErrors(prev => ({ ...prev, confirmPassword: null }));
+    return true;
+  };
+
+  const validatePasswordForm = () => {
+    const isCurrentPasswordValid = validateCurrentPassword();
+    const isNewPasswordValid = validateNewPassword();
+    const isConfirmPasswordValid = validateConfirmPassword();
+
+    return isCurrentPasswordValid && isNewPasswordValid && isConfirmPasswordValid;
+  };
+
   const fetchFollowedRecipes = async (userId, token) => {
     try {
       const recipesResponse = await fetch(
@@ -150,7 +251,7 @@ function Profile() {
         const data = await fallbackResponse.json();
         console.log('[API] Otrzymane dane z alternatywnego API:', data);
 
-        // Dane paginacji są w zagnieżdżonym obiekcie 'page'
+        // Dane paginacji są w zagnie��dżonym obiekcie 'page'
         const pageInfo = data.page || {};
         console.log('[API] Informacje o paginacji z alternatywnego źródła:', pageInfo);
 
@@ -703,14 +804,17 @@ function Profile() {
                                 <div className="mb-2">
                                   <Badge
                                     bg={recipe.status === 'PUBLISHED' ? 'success' :
-                                       (recipe.status === 'PENDING' ? 'warning' : 'secondary')}
+                                       recipe.status === 'PENDING' ? 'warning' :
+                                       recipe.status === 'REJECTED' ? 'danger' : 'secondary'}
                                     className="me-1"
                                   >
                                     {recipe.status === 'PUBLISHED'
-                                      ? t('published', 'Opublikowany')
-                                      : (recipe.status === 'PENDING'
+                                      ? t('published', 'Zaakceptowany')
+                                      : recipe.status === 'PENDING'
                                         ? t('pending', 'Oczekujący')
-                                        : t('draft', 'Szkic'))}
+                                        : recipe.status === 'REJECTED'
+                                          ? t('rejected', 'Odrzucony')
+                                          : t('draft', 'Zaakceptowany')}
                                   </Badge>
                                 </div>
                               )}
@@ -956,6 +1060,11 @@ function Profile() {
                         value={passwordData.currentPassword}
                         onChange={handlePasswordInputChange}
                       />
+                      {passwordErrors.currentPassword && (
+                        <Form.Text className="text-danger">
+                          {passwordErrors.currentPassword}
+                        </Form.Text>
+                      )}
                     </Form.Group>
 
                     <Form.Group className="mb-3">
@@ -966,7 +1075,16 @@ function Profile() {
                         name="newPassword"
                         value={passwordData.newPassword}
                         onChange={handlePasswordInputChange}
+                        onBlur={() => setPasswordTouched(prev => ({ ...prev, newPassword: true }))}
                       />
+                      {passwordErrors.newPassword && (
+                        <Form.Text className="text-danger">
+                          {passwordErrors.newPassword}
+                        </Form.Text>
+                      )}
+                      <Form.Text className="text-muted">
+                        {t('passwordRequirements', 'Hasło musi mieć co najmniej 8 znaków, zawierać wielką literę, cyfrę i znak specjalny.')}
+                      </Form.Text>
                     </Form.Group>
 
                     <Form.Group className="mb-3">
@@ -977,7 +1095,13 @@ function Profile() {
                         name="confirmPassword"
                         value={passwordData.confirmPassword}
                         onChange={handlePasswordInputChange}
+                        onBlur={() => setPasswordTouched(prev => ({ ...prev, confirmPassword: true }))}
                       />
+                      {passwordErrors.confirmPassword && (
+                        <Form.Text className="text-danger">
+                          {passwordErrors.confirmPassword}
+                        </Form.Text>
+                      )}
                     </Form.Group>
 
                     <div className="d-flex gap-2 justify-content-end">
@@ -991,7 +1115,7 @@ function Profile() {
                       <Button
                         variant="primary"
                         onClick={handleChangePassword}
-                        disabled={isSaving || !passwordData.currentPassword || !passwordData.newPassword || !passwordData.confirmPassword}
+                        disabled={isSaving || !validatePasswordForm()}
                       >
                         {isSaving ? (
                           <>
