@@ -65,6 +65,10 @@ public class Recipe {
     @OneToMany(mappedBy = "recipe", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
     private List<Comment> comments;
 
+    // Powiązane ulubione przepisy
+    @OneToMany(mappedBy = "recipe", cascade = CascadeType.REMOVE)
+    private List<FollowedRecipe> followedRecipes;
+
     // Zmiana z listy obiektów RecipeTag na listę stringów
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "recipe_tags", joinColumns = @JoinColumn(name = "recipe_id"))

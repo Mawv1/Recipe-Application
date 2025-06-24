@@ -22,10 +22,23 @@ public class CategoryController {
         return categoryService.getAllCategories();
     }
 
-    @PreAuthorize("hasRole(Role.ADMIN)")
+    @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public CategoryResponseDTO addCategory(@RequestBody CategoryRequestDTO categoryRequestDTO) {
         return categoryService.addCategory(categoryRequestDTO);
     }
+
+    /**
+     * Endpoint do usuwania kategorii po ID
+     * @param id Identyfikator kategorii do usunięcia
+     * @return Status 204 No Content, jeśli usunięcie się powiodło
+     */
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteCategory(@PathVariable Long id) {
+        categoryService.deleteCategory(id);
+    }
 }
+

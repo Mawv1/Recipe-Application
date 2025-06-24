@@ -88,6 +88,9 @@ function RecipeDetails() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+
   const navigate = useNavigate();
 
   // Funkcja pobierająca dane zalogowanego użytkownika
@@ -214,10 +217,32 @@ function RecipeDetails() {
 
     try {
       const token = localStorage.getItem('token');
-      // Sprawdzamy, czy przepis jest już w lokalnym storage jako polubiony
-      const localFollowState = localStorage.getItem(`recipe-${id}-followed`) === 'true';
-      setIsFollowed(localFollowState);
+      // Używamy nowego endpointu zgodnie z backendem
+      const res = await fetch(`http://localhost:8080/api/v1/users/me/followed-recipes/${id}/status`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        console.log('[Śledzenie] Status śledzenia przepisu:', data);
+        setIsFollowed(data.followed);
+        // Aktualizujemy również lokalny storage
+        localStorage.setItem(`recipe-${id}-followed`, data.followed.toString());
+      } else if (res.status === 401 || res.status === 403) {
+        // Użytkownik niezalogowany lub brak uprawnień
+        localStorage.removeItem('token');
+        localStorage.removeItem('refresh_token');
+        window.dispatchEvent(new Event('tokenChange'));
+        navigate('/login', { replace: true });
+      } else {
+        // W przypadku innych błędów, próbujemy odczytać stan z localStorage
+        const localFollowState = localStorage.getItem(`recipe-${id}-followed`) === 'true';
+        setIsFollowed(localFollowState);
+      }
     } catch (err) {
+      console.error('[Śledzenie] Błąd podczas sprawdzania statusu śledzenia:', err);
       // W przypadku błędu, próbujemy odczytać stan z localStorage
       const localFollowState = localStorage.getItem(`recipe-${id}-followed`) === 'true';
       setIsFollowed(localFollowState);
@@ -597,6 +622,85 @@ function RecipeDetails() {
     }
   };
 
+  const toggleFollow = async () => {
+    if (!isAuthenticated) {
+      navigate('/login', { state: { from: `/recipes/${id}`, message: 'Zaloguj się, aby dodać przepis do obserwowanych.' } });
+      return;
+    }
+
+    setFollowLoading(true);
+    const token = localStorage.getItem('token');
+    const currentStatus = isFollowed;
+
+    try {
+      console.log(`[Śledzenie] Zmiana statusu przepisu ${id}, aktualny status: ${currentStatus ? 'obserwowany' : 'nieobserwowany'}`);
+
+      // Używamy nowych endpointów zgodnie z kontrolerem UserController
+      // POST /api/v1/users/me/followed-recipes/{recipeId} - dodaj do obserwowanych
+      // DELETE /api/v1/users/me/followed-recipes/{recipeId} - usuń z obserwowanych
+      const url = `http://localhost:8080/api/v1/users/me/followed-recipes/${id}`;
+      const method = currentStatus ? 'DELETE' : 'POST';
+
+      console.log(`[Śledzenie] Wysyłanie żądania ${method} do ${url}`);
+
+      const res = await fetch(url, {
+        method: method,
+        headers: {
+          'Authorization': 'Bearer ' + token,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      console.log(`[Śledzenie] Status odpowiedzi: ${res.status}`);
+
+      if (res.ok) {
+        const newStatus = !currentStatus;
+        console.log(`[Śledzenie] Zmieniono status na: ${newStatus ? 'obserwowany' : 'nieobserwowany'}`);
+
+        // Zapisz lokalnie status obserwowania
+        localStorage.setItem(`recipe-${id}-followed`, newStatus.toString());
+        setIsFollowed(newStatus);
+
+        // Zaktualizuj liczbę obserwujących w obiekcie przepisu
+        setRecipe(prev => ({
+          ...prev,
+          favoritesCount: prev.favoritesCount + (newStatus ? 1 : -1)
+        }));
+
+        // Wyświetl komunikat o sukcesie
+        setSnackbarMessage(newStatus
+          ? 'Przepis został dodany do obserwowanych.'
+          : 'Przepis został usunięty z obserwowanych.');
+        setSnackbarOpen(true);
+
+        // Emituj zdarzenie zmiany przepisu, aby odświeżyć listę na stronie głównej
+        window.dispatchEvent(new Event('recipeChange'));
+      } else {
+        console.error(`[Śledzenie] Błąd: ${res.status}`);
+        let errorMsg = 'Wystąpił błąd przy aktualizacji obserwowanych przepisów.';
+
+        if (res.status === 401 || res.status === 403) {
+          // Usuwamy token, emitujemy zdarzenie (bez odświeżania strony)
+          localStorage.removeItem('token');
+          localStorage.removeItem('refresh_token');
+          window.dispatchEvent(new Event('tokenChange'));
+          navigate('/login', { replace: true });
+          errorMsg = 'Sesja wygasła. Zaloguj się ponownie.';
+        }
+
+        setSnackbarMessage(errorMsg);
+        setSnackbarOpen(true);
+        throw new Error(errorMsg);
+      }
+    } catch (error) {
+      console.error('[Śledzenie] Wyjątek:', error);
+      setSnackbarMessage('Wystąpił błąd przy aktualizacji obserwowanych przepisów.');
+      setSnackbarOpen(true);
+    } finally {
+      setFollowLoading(false);
+    }
+  };
+
   useEffect(() => {
     const token = localStorage.getItem('token');
     setIsAuthenticated(!!token);
@@ -632,63 +736,6 @@ function RecipeDetails() {
       fetchCurrentUser();
     }
   }, [id, isAuthenticated, fetchComments]);
-
-  const handleFollowToggle = async () => {
-    if (!isAuthenticated) {
-      navigate('/login');
-      return;
-    }
-
-    setFollowLoading(true);
-    const token = localStorage.getItem('token');
-
-    const currentStatus = isFollowed;
-
-    try {
-      const url = `http://localhost:8080/api/v1/users/me/followed-recipes/${id}`;
-      const method = currentStatus ? 'DELETE' : 'POST';
-
-      const res = await fetch(url, {
-        method: method,
-        headers: {
-          'Authorization': 'Bearer ' + token,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (res.ok) {
-        const newStatus = !currentStatus;
-
-        // Zapisz lokalnie status polubienia
-        localStorage.setItem(`recipe-${id}-followed`, newStatus.toString());
-        setIsFollowed(newStatus);
-
-        // Zaktualizuj liczbę polubień w obiekcie przepisu
-        setRecipe(prev => ({
-          ...prev,
-          favoritesCount: prev.favoritesCount + (newStatus ? 1 : -1)
-        }));
-
-        // Emituj zdarzenie zmiany przepisu, aby odświeżyć listę na stronie głównej
-        window.dispatchEvent(new Event('recipeChange'));
-      } else {
-        if (res.status === 401 || res.status === 403) {
-          // Usuwamy token, emitujemy zdarzenie (bez odświeżania strony)
-          localStorage.removeItem('token');
-          localStorage.removeItem('refresh_token');
-          window.dispatchEvent(new Event('tokenChange'));
-          navigate('/login', { replace: true });
-          throw new Error('Sesja wygasła. Zaloguj się ponownie.');
-        }
-        throw new Error(`Nie udało się wykonać operacji: ${res.status} ${res.statusText}`);
-      }
-    } catch (err) {
-      // Obsługa błędu
-      setIsFollowed(prevState => prevState); // Przywracamy poprzedni stan w przypadku błędu
-    } finally {
-      setFollowLoading(false);
-    }
-  };
 
   const handleRatingSubmit = async () => {
     if (!isAuthenticated) {
@@ -826,7 +873,7 @@ function RecipeDetails() {
                 <div className="recipe-actions">
                   <button
                     className={`follow-btn ${isFollowed ? 'followed' : ''}`}
-                    onClick={handleFollowToggle}
+                    onClick={toggleFollow}
                     disabled={followLoading}
                     title={isFollowed
                       ? t('removeFromFavorites', 'Usuń z ulubionych')
@@ -979,7 +1026,7 @@ function RecipeDetails() {
                             className={`btn btn-sm ${userLikes[comment.id] ? 'btn-success' : 'btn-outline-success'} me-3 d-flex align-items-center px-3 py-2`}
                             onClick={() => handleLikeComment(comment.id)}
                             disabled={!isAuthenticated}
-                            title={userLikes[comment.id] ? t('removeLike', 'Usuń polubienie') : t('like', 'Polub')}
+                            title={userLikes[comment.id] ? t('removeLike', 'Usu�� polubienie') : t('like', 'Polub')}
                           >
                             <i className="fas fa-thumbs-up me-2" style={{ fontSize: '1.1rem' }}></i>
                             <span className="fw-bold">{comment.likesCount || 0}</span>

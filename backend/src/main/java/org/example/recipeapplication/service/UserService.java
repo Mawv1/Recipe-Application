@@ -50,12 +50,7 @@ public class UserService {
     public List<UserResponseDTO> getAllUsers() {
         List<AppUser> users = userRepository.findAll();
         return users.stream()
-                .map(user -> {
-                    // Pobierz przepisy użytkownika z repozytorium, aby wymusić inicjalizację kolekcji
-                    List<Recipe> recipes = recipeRepository.findByAuthor(user, Pageable.unpaged()).getContent();
-                    user.setRecipes(recipes);
-                    return mapToDTO(user);
-                })
+                .map(this::mapToDTOWithoutRecipes)
                 .collect(Collectors.toList());
     }
 
@@ -70,7 +65,28 @@ public class UserService {
                 user.getProfilePicture(),
                 user.getEmail(),
                 user.getRole() != null ? user.getRole().name() : null,
+                user.isBanned(),
+                user.getBanReason(),
                 recipes
+        );
+    }
+
+    /**
+     * Mapuje obiekt użytkownika do DTO bez listy przepisów - dla endpointu /users
+     * @param user Obiekt użytkownika do mapowania
+     * @return DTO użytkownika bez listy przepisów
+     */
+    private UserResponseDTO mapToDTOWithoutRecipes(AppUser user) {
+        return new UserResponseDTO(
+                user.getId(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getProfilePicture(),
+                user.getEmail(),
+                user.getRole() != null ? user.getRole().name() : null,
+                user.isBanned(),
+                user.getBanReason(),
+                null // Nie zwracamy przepisów
         );
     }
 
@@ -108,6 +124,8 @@ public class UserService {
                                         comment.getAuthor().getProfilePicture(),
                                         comment.getAuthor().getEmail(),
                                         null, // rola nie jest potrzebna w komentarzu
+                                        comment.getAuthor().isBanned(),
+                                        comment.getAuthor().getBanReason(),
                                         null // nie pobieramy przepisów autora w komentarzu
                                 ),
                                 comment.getDateOfCreation() != null ? comment.getDateOfCreation().toLocalDateTime() : null

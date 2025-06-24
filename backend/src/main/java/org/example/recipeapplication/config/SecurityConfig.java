@@ -131,10 +131,15 @@ public class SecurityConfig {
 
                                 .requestMatchers(POST, "/api/v1/recipes/*/rate")
                                 .authenticated()
+
+                                // Konfiguracja dla endpointów kategorii - wszystkie operacje tylko dla administratorów
                                 .requestMatchers(GET, "/api/v1/categories")
-                                .permitAll()
+                                .hasAuthority("ADMIN")
                                 .requestMatchers(POST, "/api/v1/categories")
-                                .hasAuthority("ADMIN") // Zmienione by pasowało do roli z JWT ("ADMIN" bez prefiksu)
+                                .hasAuthority("ADMIN")
+                                .requestMatchers(DELETE, "/api/v1/categories/**")
+                                .hasAuthority("ADMIN")
+
                                 .requestMatchers(POST, "/api/v1/uploads").authenticated()
 
                                 // Pozostałe reguły

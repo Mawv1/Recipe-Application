@@ -11,6 +11,8 @@ public record UserResponseDTO(
         String profilePicture,
         String email,
         String role,
+        boolean banned,
+        String banReason,
         List<RecipeResponseDTO> recipes
 ) {
     public String getEmail() {

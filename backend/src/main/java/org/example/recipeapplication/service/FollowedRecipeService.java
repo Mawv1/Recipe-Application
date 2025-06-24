@@ -3,6 +3,7 @@ package org.example.recipeapplication.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.recipeapplication.dto.FollowedRecipeResponseDTO;
+import org.example.recipeapplication.dto.RecipeResponseDTO;
 import org.example.recipeapplication.model.AppUser;
 import org.example.recipeapplication.model.FollowedRecipe;
 import org.example.recipeapplication.model.Recipe;
@@ -28,6 +29,7 @@ public class FollowedRecipeService {
     private final FollowedRecipeRepository followedRecipeRepository;
     private final RecipeRepository recipeRepository;
     private final AppUserRepository userRepository;
+    private final RecipeService recipeService;
 
     @Transactional
     public FollowedRecipeResponseDTO followRecipe(Long recipeId, String userEmail) {
@@ -138,6 +140,46 @@ public class FollowedRecipeService {
 
         return followedRecipeRepository.findByUser(user, pageable)
                 .map(this::mapToDTO);
+    }
+
+    /**
+     * Pobiera pełne obiekty RecipeResponseDTO dla ulubionych przepisów użytkownika
+     * @param userEmail email użytkownika
+     * @param pageable parametry paginacji
+     * @return strona z pełnymi danymi przepisów (tak jak w "moje przepisy")
+     */
+    @Transactional(readOnly = true)
+    public Page<RecipeResponseDTO> getFollowedRecipesAsFullRecipes(String userEmail, Pageable pageable) {
+        log.info("Pobieranie pełnych danych dla obserwowanych przepisów użytkownika: {}", userEmail);
+
+        AppUser user = getUserForOperations(userEmail);
+        Page<FollowedRecipe> followedRecipesPage = followedRecipeRepository.findByUser(user, pageable);
+
+        // Konwertujemy stronę FollowedRecipe na stronę RecipeResponseDTO
+        return followedRecipesPage.map(followedRecipe ->
+            // Pobieramy pełne dane przepisu przy pomocy RecipeService
+            recipeService.getRecipeById(followedRecipe.getRecipe().getId()).orElse(null)
+        );
+    }
+
+    /**
+     * Pobiera pełne obiekty RecipeResponseDTO dla ulubionych przepisów użytkownika po ID
+     * @param userId ID użytkownika
+     * @param pageable parametry paginacji
+     * @return strona z pełnymi danymi przepisów (tak jak w "moje przepisy")
+     */
+    @Transactional(readOnly = true)
+    public Page<RecipeResponseDTO> getUserFollowedRecipesAsFullRecipes(Long userId, Pageable pageable) {
+        AppUser user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
+
+        Page<FollowedRecipe> followedRecipesPage = followedRecipeRepository.findByUser(user, pageable);
+
+        // Konwertujemy stronę FollowedRecipe na stronę RecipeResponseDTO
+        return followedRecipesPage.map(followedRecipe ->
+            // Pobieramy pełne dane przepisu przy pomocy RecipeService
+            recipeService.getRecipeById(followedRecipe.getRecipe().getId()).orElse(null)
+        );
     }
 
     /**

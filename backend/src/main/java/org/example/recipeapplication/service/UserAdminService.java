@@ -92,6 +92,8 @@ public class UserAdminService {
                 user.getProfilePicture(),
                 user.getEmail(),
                 user.getRole() != null ? user.getRole().name() : null,
+                user.isBanned(),
+                user.getBanReason(),
                 null  // nie pobieramy przepisów użytkownika
         );
     }

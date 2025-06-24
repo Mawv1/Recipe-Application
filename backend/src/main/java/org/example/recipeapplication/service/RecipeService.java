@@ -6,11 +6,14 @@ import org.example.recipeapplication.dto.*;
 import org.example.recipeapplication.model.*;
 import org.example.recipeapplication.repos.AppUserRepository;
 import org.example.recipeapplication.repos.CategoryRepository;
+import org.example.recipeapplication.repos.CommentRepository;
 import org.example.recipeapplication.repos.IngredientRepository;
 import org.example.recipeapplication.repos.RecipeRepository;
+import org.example.recipeapplication.repos.RatingRepository; // Import RatingRepository
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.sql.Timestamp;
@@ -31,6 +34,8 @@ public class RecipeService {
     private final FileStorageService fileStorageService;
     private final CommentService commentService; // Dodanie CommentService
     private final UserAdminService userAdminService; // Dodanie UserAdminService
+    private final CommentRepository commentRepository; // Dodanie CommentRepository
+    private final RatingRepository ratingRepository; // Dodanie repozytorium ocen
 
     public Page<RecipeResponseDTO> getAllRecipes(Pageable pageable) {
         return recipeRepository.findByStatus(org.example.recipeapplication.model.RecipeStatus.ACCEPTED, pageable)
@@ -51,7 +56,8 @@ public class RecipeService {
     }
 
     public Page<RecipeResponseDTO> searchRecipes(String search, Pageable pageable) {
-        return recipeRepository.findByTitleContainingIgnoreCase(search, pageable).map(this::mapToDTO);
+        // Używamy ulepszonej metody wyszukującej w tytule, opisie i tagach
+        return recipeRepository.searchByTitleOrDescriptionOrTags(search, pageable).map(this::mapToDTO);
     }
 
     public RecipeResponseDTO addRecipe(RecipeRequestDTO dto, String email) {
@@ -176,7 +182,7 @@ public class RecipeService {
         Recipe recipe = recipeRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Recipe not found with id: " + id));
 
-        // Pobierz użytkownika, aby sprawdzić jego rolę
+        // Pobierz użytkownika, aby sprawdzi�� jego rolę
         AppUser user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with email: " + email));
 
@@ -258,6 +264,8 @@ public class RecipeService {
                         recipe.getAuthor().getProfilePicture(),
                         recipe.getAuthor().getEmail(),
                         recipe.getAuthor().getRole() != null ? recipe.getAuthor().getRole().name() : null,
+                        recipe.getAuthor().isBanned(),
+                        recipe.getAuthor().getBanReason(),
                         null // nie pobieramy przepisów autora w DTO przepisu
                 ),
                 recipe.getDateOfCreation() != null ? recipe.getDateOfCreation().toLocalDateTime() : null,
@@ -284,6 +292,8 @@ public class RecipeService {
                                         comment.getAuthor().getProfilePicture(),
                                         comment.getAuthor().getEmail(),
                                         comment.getAuthor().getRole() != null ? comment.getAuthor().getRole().name() : null,
+                                        comment.getAuthor().isBanned(),
+                                        comment.getAuthor().getBanReason(),
                                         null
                                 ),
                                 comment.getDateOfCreation().toLocalDateTime()
@@ -308,6 +318,7 @@ public class RecipeService {
         return recipeRepository.findById(id).map(this::mapToDTO);
     }
 
+    @Transactional
     public void deleteRecipe(Long id, String email) {
         Recipe recipe = recipeRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Recipe not found with id: " + id));
@@ -325,6 +336,22 @@ public class RecipeService {
             throw new SecurityException("You are not authorized to delete this recipe.");
         }
 
+        // Pobierz wszystkie komentarze powiązane z przepisem
+        List<Comment> comments = commentRepository.findByRecipeId(id);
+
+        // Dla każdego komentarza usuń najpierw wszystkie reakcje
+        for (Comment comment : comments) {
+            // Usuń wszystkie reakcje na komentarz
+            commentService.deleteAllReactionsForComment(comment.getId());
+        }
+
+        // Usuń wszystkie komentarze powiązane z przepisem
+        commentRepository.deleteAll(comments);
+
+        // Usuń wszystkie oceny powiązane z przepisem
+        ratingRepository.deleteByRecipeId(id);
+
+        // Na końcu usuń przepis
         recipeRepository.delete(recipe);
     }
 

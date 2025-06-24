@@ -10,43 +10,44 @@ function Users() {
     const [banReason, setBanReason] = useState('');
     const [actionSuccess, setActionSuccess] = useState('');
 
+    // Funkcja pobierania użytkowników - wydzielona na zewnątrz useEffect, aby można było ją wywoływać po akcjach
+    const fetchUsers = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch('http://localhost:8080/api/v1/users', {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`Błąd HTTP: ${response.status}`);
+            }
+
+            const data = await response.json();
+            setUsers(data);
+        } catch (err) {
+            console.error("Błąd podczas pobierania użytkowników:", err);
+            setError('Nie udało się pobrać listy użytkowników. ' + err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     // Pobieranie listy użytkowników
     useEffect(() => {
-        const fetchUsers = async () => {
-            setLoading(true);
-            setError(null);
-            try {
-                const token = localStorage.getItem('token');
-                const response = await fetch('http://localhost:8080/api/v1/users', {
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error(`Błąd HTTP: ${response.status}`);
-                }
-
-                const data = await response.json();
-                setUsers(data);
-            } catch (err) {
-                console.error("Błąd podczas pobierania użytkowników:", err);
-                setError('Nie udało się pobrać listy użytkowników. ' + err.message);
-            } finally {
-                setLoading(false);
-            }
-        };
-
         fetchUsers();
     }, []);
 
     // Funkcja do banowania użytkownika
     const handleBanUser = async () => {
         if (!selectedUser) return;
-        
+
         setLoading(true);
         setError(null);
-        
+
         try {
             const token = localStorage.getItem('token');
             const response = await fetch(`http://localhost:8080/api/v1/admin/users/${selectedUser.id}/ban?reason=${encodeURIComponent(banReason)}`, {
@@ -62,12 +63,10 @@ function Users() {
             }
 
             const updatedUser = await response.json();
-            
-            // Aktualizacja stanu użytkowników
-            setUsers(users.map(user => 
-                user.id === updatedUser.id ? updatedUser : user
-            ));
-            
+
+            // Odświeżenie listy użytkowników po operacji banowania
+            await fetchUsers();
+
             setActionSuccess(`Użytkownik ${selectedUser.firstName} ${selectedUser.lastName} został zbanowany.`);
             setShowBanModal(false);
             setBanReason('');
@@ -83,7 +82,7 @@ function Users() {
     const handleUnbanUser = async (user) => {
         setLoading(true);
         setError(null);
-        
+
         try {
             const token = localStorage.getItem('token');
             const response = await fetch(`http://localhost:8080/api/v1/admin/users/${user.id}/unban`, {
@@ -99,12 +98,10 @@ function Users() {
             }
 
             const updatedUser = await response.json();
-            
-            // Aktualizacja stanu użytkowników
-            setUsers(users.map(u => 
-                u.id === updatedUser.id ? updatedUser : u
-            ));
-            
+
+            // Odświeżenie listy użytkowników po operacji odbanowania
+            await fetchUsers();
+
             setActionSuccess(`Użytkownik ${user.firstName} ${user.lastName} został odbanowany.`);
         } catch (err) {
             console.error("Błąd podczas odbanowania użytkownika:", err);
@@ -135,7 +132,16 @@ function Users() {
     return (
         <div>
             <h2 className="mb-4">Zarządzanie Użytkownikami</h2>
-            
+
+            <Button
+                variant="outline-primary"
+                className="mb-3"
+                onClick={fetchUsers}
+                disabled={loading}
+            >
+                <i className="fas fa-sync-alt me-1"></i> Odśwież listę
+            </Button>
+
             {error && <Alert variant="danger">{error}</Alert>}
             {actionSuccess && <Alert variant="success">{actionSuccess}</Alert>}
 
@@ -160,15 +166,23 @@ function Users() {
                             <td>{user.email}</td>
                             <td>{user.role}</td>
                             <td>
-                                {user.banned ? 
-                                    <Badge bg="danger">Zbanowany</Badge> : 
+                                {user.banned ?
+                                    <Badge bg="danger">Zbanowany</Badge> :
                                     <Badge bg="success">Aktywny</Badge>
                                 }
                             </td>
                             <td>
+                                <Button
+                                    variant="outline-secondary"
+                                    size="sm"
+                                    className="me-1"
+                                    onClick={() => console.log("Dane użytkownika:", JSON.stringify(user, null, 2))}
+                                >
+                                    <i className="fas fa-info-circle"></i>
+                                </Button>
                                 {user.banned ? (
-                                    <Button 
-                                        variant="outline-success" 
+                                    <Button
+                                        variant="outline-success"
                                         size="sm"
                                         onClick={() => handleUnbanUser(user)}
                                         disabled={loading}
@@ -176,8 +190,8 @@ function Users() {
                                         Odbanuj
                                     </Button>
                                 ) : (
-                                    <Button 
-                                        variant="outline-danger" 
+                                    <Button
+                                        variant="outline-danger"
                                         size="sm"
                                         onClick={() => openBanModal(user)}
                                         disabled={loading}
@@ -202,9 +216,9 @@ function Users() {
                             <p>Czy na pewno chcesz zbanować użytkownika <strong>{selectedUser.firstName} {selectedUser.lastName}</strong>?</p>
                             <Form.Group>
                                 <Form.Label>Powód bana (opcjonalnie)</Form.Label>
-                                <Form.Control 
-                                    as="textarea" 
-                                    rows={3} 
+                                <Form.Control
+                                    as="textarea"
+                                    rows={3}
                                     value={banReason}
                                     onChange={(e) => setBanReason(e.target.value)}
                                 />
@@ -216,8 +230,8 @@ function Users() {
                     <Button variant="secondary" onClick={() => setShowBanModal(false)}>
                         Anuluj
                     </Button>
-                    <Button 
-                        variant="danger" 
+                    <Button
+                        variant="danger"
                         onClick={handleBanUser}
                         disabled={loading}
                     >

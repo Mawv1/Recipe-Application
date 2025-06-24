@@ -3,6 +3,7 @@ package org.example.recipeapplication.controller;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.example.recipeapplication.dto.FollowedRecipeResponseDTO;
+import org.example.recipeapplication.dto.RecipeResponseDTO;
 import org.example.recipeapplication.dto.UserRequestDTO;
 import org.example.recipeapplication.dto.UserResponseDTO;
 import org.example.recipeapplication.service.FollowedRecipeService;
@@ -43,22 +44,22 @@ public class UserController {
     }
 
     @GetMapping("/{userId}/followed-recipes")
-    public ResponseEntity<Page<FollowedRecipeResponseDTO>> getUserFollowedRecipes(
+    public ResponseEntity<Page<RecipeResponseDTO>> getUserFollowedRecipes(
             @PathVariable Long userId,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "6") int size,
             @RequestParam(defaultValue = "followedAt") String sortBy,
             @RequestParam(defaultValue = "desc") String direction
     ) {
         Sort.Direction sortDirection = Sort.Direction.fromString(direction);
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
-        return ResponseEntity.ok(followedRecipeService.getUserFollowedRecipesByUserId(userId, pageable));
+        return ResponseEntity.ok(followedRecipeService.getUserFollowedRecipesAsFullRecipes(userId, pageable));
     }
 
     @GetMapping("/me/followed-recipes")
     public ResponseEntity<?> getMyFollowedRecipes(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "6") int size,
             @RequestParam(defaultValue = "followedAt") String sortBy,
             @RequestParam(defaultValue = "desc") String direction,
             @AuthenticationPrincipal UserDetails userDetails
@@ -71,7 +72,7 @@ public class UserController {
 
         Sort.Direction sortDirection = Sort.Direction.fromString(direction);
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
-        return ResponseEntity.ok(followedRecipeService.getFollowedRecipes(userDetails.getUsername(), pageable));
+        return ResponseEntity.ok(followedRecipeService.getFollowedRecipesAsFullRecipes(userDetails.getUsername(), pageable));
     }
 
     @PostMapping("/me/followed-recipes/{recipeId}")

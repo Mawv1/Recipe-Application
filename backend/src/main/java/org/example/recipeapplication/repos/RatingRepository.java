@@ -19,4 +19,7 @@ public interface RatingRepository extends JpaRepository<Rating, Long> {
     Double calculateAverageRating(Long recipeId);
 
     void deleteByUserAndRecipe(AppUser user, Recipe recipe);
+
+    // Usuwa wszystkie oceny dla danego przepisu
+    void deleteByRecipeId(Long recipeId);
 }

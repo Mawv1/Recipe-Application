@@ -227,6 +227,19 @@ public class CommentService {
     }
 
     /**
+     * Usuwa wszystkie reakcje dla danego komentarza
+     *
+     * @param commentId ID komentarza, dla którego mają zostać usunięte reakcje
+     */
+    @Transactional
+    public void deleteAllReactionsForComment(Long commentId) {
+        List<CommentReaction> reactions = commentReactionRepository.findByCommentId(commentId);
+        if (!reactions.isEmpty()) {
+            commentReactionRepository.deleteAll(reactions);
+        }
+    }
+
+    /**
      * Aktualizacja liczników polubień i niepolubień w komentarzu na podstawie reakcji
      */
     private void updateCommentReactionCounts(Comment comment) {
@@ -274,6 +287,8 @@ public class CommentService {
                         comment.getAuthor().getProfilePicture(),
                         comment.getAuthor().getEmail(),
                         comment.getAuthor().getRole() != null ? comment.getAuthor().getRole().name() : null,
+                        comment.getAuthor().isBanned(),
+                        comment.getAuthor().getBanReason(),
                         null // nie pobieramy przepisów autora w komentarzu
                 ),
                 comment.getDateOfCreation().toLocalDateTime()

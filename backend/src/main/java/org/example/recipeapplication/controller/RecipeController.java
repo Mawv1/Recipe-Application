@@ -34,7 +34,7 @@ public class RecipeController {
     @GetMapping
     public ResponseEntity<Page<RecipeResponseDTO>> getAllRecipes(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "5") int size,
             @RequestParam(defaultValue = "dateOfCreation") String sortBy,
             @RequestParam(defaultValue = "desc") String direction
     ) {
@@ -150,7 +150,7 @@ public class RecipeController {
     public ResponseEntity<Page<RecipeResponseDTO>> getMyRecipes(
             @AuthenticationPrincipal UserDetails userDetails,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "6") int size
     ) {
         if (userDetails == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();

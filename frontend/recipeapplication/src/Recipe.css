@@ -32,6 +32,16 @@ form .form-select:focus {
   margin: 1rem auto;
 }
 
+/* Zwiększona wielkość czcionki w edytorze opisu przepisu */
+.ql-editor {
+  font-size: 1.4rem !important;
+  line-height: 1.6;
+}
+
+.ql-editor p {
+  font-size: 1.4rem !important;
+}
+
 /* Style dla podglądu zdjęcia */
 .image-preview-container {
   max-width: 100%;

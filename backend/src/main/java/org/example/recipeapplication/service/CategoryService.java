@@ -50,5 +50,22 @@ public class CategoryService {
     private CategoryResponseDTO mapToDTO(Category category) {
         return new CategoryResponseDTO(category.getId(), category.getName());
     }
-}
 
+    /**
+     * Usuwa kategorię o podanym ID
+     * @param id Identyfikator kategorii do usunięcia
+     * @throws EntityNotFoundException jeśli kategoria o podanym ID nie istnieje
+     * @throws IllegalStateException jeśli kategoria jest używana i nie może być usunięta
+     */
+    public void deleteCategory(Long id) {
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Nie znaleziono kategorii o ID: " + id));
+
+        try {
+            categoryRepository.deleteById(id);
+        } catch (Exception e) {
+            // W przypadku naruszenia ograniczeń integralności (np. kategoria używana w przepisach)
+            throw new IllegalStateException("Nie można usunąć kategorii, ponieważ jest używana w przepisach", e);
+        }
+    }
+}
