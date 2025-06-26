@@ -53,18 +53,27 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         // Pomijamy filtr dla publicznych endpointów tylko dla GET
-        if ((path.equals("/api/v1/recipes") && method.equals("GET")) ||
-            path.startsWith("/api/v1/recipes/search") ||
-            path.startsWith("/api/v1/recipes/category/") ||
-            path.startsWith("/api/v1/recipes/user/") ||
-            // Modyfikacja warunku - tylko GET i tylko dla określonych ścieżek (nie dla /pending, /my-recipes i nie dla operacji PUT)
-            (path.startsWith("/api/v1/recipes/") && method.equals("GET") &&
-             !path.equals("/api/v1/recipes/pending") && !path.equals("/api/v1/recipes/my-recipes") &&
-             path.matches("/api/v1/recipes/\\d+")) || // Tylko dla GET pojedynczego przepisu
+        if (method.equals("GET") && (
+            path.equals("/api/v1/recipes") ||    // Główny endpoint przepisów
+            path.startsWith("/api/v1/recipes/search") ||  // Wyszukiwanie przepisów
+            path.startsWith("/api/v1/recipes/category/") ||  // Przepisy według kategorii
+            path.startsWith("/api/v1/recipes/user/") ||  // Przepisy użytkownika
+            // Modyfikacja warunku - tylko GET i tylko dla określonych ścieżek (nie dla /pending, /my-recipes)
+            (path.startsWith("/api/v1/recipes/") &&
+             !path.equals("/api/v1/recipes/pending") &&
+             !path.equals("/api/v1/recipes/my-recipes") &&
+             path.matches("/api/v1/recipes/\\d+")) ||  // Tylko dla GET pojedynczego przepisu
+            // Dodano dostęp do kategorii
+            path.equals("/api/v1/categories") ||
+            path.startsWith("/api/v1/categories/") ||
             // Publiczne endpointy dla obserwowanych przepisów
             path.matches("/api/v1/users/\\d+/followed-recipes") ||
-            path.startsWith("/api/v1/users/email/")) {
-            log.info("Skipping filter for public endpoint");
+            path.startsWith("/api/v1/users/email/") ||
+            // Publiczne endpointy dla komentarzy
+            path.matches("/api/v1/recipes/\\d+/comments") ||
+            path.matches("/api/v1/comments/\\d+")
+        )) {
+            log.info("Skipping filter for public endpoint: {}", path);
             filterChain.doFilter(request, response);
             return;
         }

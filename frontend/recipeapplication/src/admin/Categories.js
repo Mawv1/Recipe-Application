@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Button, Form, Alert, Spinner, Card, Modal } from 'react-bootstrap';
+import { useTranslation } from 'react-i18next';
 
 function Categories() {
+    const { t } = useTranslation();
     const [categories, setCategories] = useState([]);
     const [newCategoryName, setNewCategoryName] = useState('');
     const [loading, setLoading] = useState(false);
@@ -25,7 +27,7 @@ function Categories() {
             });
 
             if (!response.ok) {
-                throw new Error(`Błąd HTTP: ${response.status}`);
+                throw new Error(t('fetchCategoriesError'));
             }
 
             const data = await response.json();
@@ -36,7 +38,7 @@ function Categories() {
             setCategories(categoriesData);
         } catch (err) {
             console.error("Błąd podczas pobierania kategorii:", err);
-            setError('Nie udało się pobrać kategorii. ' + err.message);
+            setError(t('fetchCategoriesError'));
         } finally {
             setLoading(false);
         }
@@ -51,7 +53,7 @@ function Categories() {
     const handleAddCategory = async (e) => {
         e.preventDefault();
         if (!newCategoryName.trim()) {
-            setError('Nazwa kategorii nie może być pusta.');
+            setError(t('emptyCategoryError'));
             return;
         }
 
@@ -69,19 +71,19 @@ function Categories() {
             });
 
             if (!response.ok) {
-                throw new Error(`Błąd HTTP: ${response.status}`);
+                throw new Error(t('categoryAddError'));
             }
 
             // Pobierz zaktualizowaną listę kategorii
             await fetchCategories();
-            setSuccess('Kategoria została dodana pomyślnie.');
+            setSuccess(t('categoryAdded'));
             setNewCategoryName(''); // Wyczyść pole formularza
 
             // Automatycznie ukryj komunikat sukcesu po 3 sekundach
             setTimeout(() => setSuccess(null), 3000);
         } catch (err) {
             console.error("Błąd podczas dodawania kategorii:", err);
-            setError('Nie udało się dodać kategorii. ' + err.message);
+            setError(t('categoryAddError'));
         } finally {
             setLoading(false);
         }
@@ -109,19 +111,19 @@ function Categories() {
             });
 
             if (!response.ok) {
-                throw new Error(`Błąd HTTP: ${response.status}`);
+                throw new Error(t('categoryDeleteError'));
             }
 
             // Pobierz zaktualizowaną listę kategorii
             await fetchCategories();
-            setSuccess('Kategoria została usunięta pomyślnie.');
+            setSuccess(t('categoryDeleted'));
             setShowDeleteModal(false);
 
             // Automatycznie ukryj komunikat sukcesu po 3 sekundach
             setTimeout(() => setSuccess(null), 3000);
         } catch (err) {
             console.error("Błąd podczas usuwania kategorii:", err);
-            setError('Nie udało się usunąć kategorii. Może być używana w przepisach.');
+            setError(t('categoryDeleteError'));
         } finally {
             setLoading(false);
             setShowDeleteModal(false);
@@ -130,18 +132,18 @@ function Categories() {
 
     return (
         <div>
-            <h2 className="mb-4">Zarządzanie Kategoriami</h2>
+            <h2 className="mb-4">{t('categoryManagement')}</h2>
 
             {/* Formularz dodawania kategorii */}
             <Card className="mb-4">
                 <Card.Body>
-                    <h5>Dodaj nową kategorię</h5>
+                    <h5>{t('addNewCategory')}</h5>
                     <Form onSubmit={handleAddCategory}>
                         <Form.Group className="mb-3">
-                            <Form.Label>Nazwa kategorii</Form.Label>
+                            <Form.Label>{t('categoryName')}</Form.Label>
                             <Form.Control
                                 type="text"
-                                placeholder="Wprowadź nazwę kategorii"
+                                placeholder={t('enterCategoryName')}
                                 value={newCategoryName}
                                 onChange={(e) => setNewCategoryName(e.target.value)}
                                 required
@@ -152,7 +154,7 @@ function Categories() {
                             type="submit"
                             disabled={loading || !newCategoryName.trim()}
                         >
-                            {loading ? <Spinner size="sm" animation="border" /> : 'Dodaj kategorię'}
+                            {loading ? <Spinner size="sm" animation="border" /> : t('addCategory')}
                         </Button>
                     </Form>
                 </Card.Body>
@@ -166,14 +168,14 @@ function Categories() {
             <Card>
                 <Card.Body>
                     <div className="d-flex justify-content-between align-items-center mb-3">
-                        <h5 className="mb-0">Lista kategorii</h5>
+                        <h5 className="mb-0">{t('categoryList')}</h5>
                         <Button
                             variant="outline-secondary"
                             size="sm"
                             onClick={fetchCategories}
                             disabled={loading}
                         >
-                            <i className="fas fa-sync-alt me-1"></i> Odśwież
+                            <i className="fas fa-sync-alt me-1"></i> {t('refreshCategories')}
                         </Button>
                     </div>
 
@@ -185,9 +187,9 @@ function Categories() {
                         <Table striped bordered hover responsive>
                             <thead>
                                 <tr>
-                                    <th>ID</th>
-                                    <th>Nazwa</th>
-                                    <th>Akcje</th>
+                                    <th>{t('categoryId')}</th>
+                                    <th>{t('categoryName')}</th>
+                                    <th>{t('categoryActions')}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -202,14 +204,14 @@ function Categories() {
                                                     size="sm"
                                                     onClick={() => openDeleteModal(category)}
                                                 >
-                                                    Usuń
+                                                    {t('deleteCategory')}
                                                 </Button>
                                             </td>
                                         </tr>
                                     ))
                                 ) : (
                                     <tr>
-                                        <td colSpan={3} className="text-center">Brak kategorii</td>
+                                        <td colSpan={3} className="text-center">{t('noCategories')}</td>
                                     </tr>
                                 )}
                             </tbody>
@@ -221,27 +223,27 @@ function Categories() {
             {/* Modal potwierdzenia usunięcia */}
             <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
                 <Modal.Header closeButton>
-                    <Modal.Title>Potwierdź usunięcie</Modal.Title>
+                    <Modal.Title>{t('confirmDeleteCategory')}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     {categoryToDelete && (
                         <p>
-                            Czy na pewno chcesz usunąć kategorię <strong>{categoryToDelete.name}</strong>?
+                            {t('confirmDeleteCategoryText')} <strong>{categoryToDelete.name}</strong>?
                             <br />
-                            <span className="text-danger">Uwaga: Jeśli kategoria jest używana w przepisach, nie będzie można jej usunąć.</span>
+                            <span className="text-danger">{t('categoryDeleteWarning')}</span>
                         </p>
                     )}
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
-                        Anuluj
+                        {t('cancel')}
                     </Button>
                     <Button
                         variant="danger"
                         onClick={handleDeleteCategory}
                         disabled={loading}
                     >
-                        {loading ? <Spinner animation="border" size="sm" /> : 'Usuń'}
+                        {loading ? <Spinner animation="border" size="sm" /> : t('deleteCategory')}
                     </Button>
                 </Modal.Footer>
             </Modal>

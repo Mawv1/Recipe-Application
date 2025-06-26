@@ -6,6 +6,7 @@ import org.example.recipeapplication.model.Category;
 import org.example.recipeapplication.model.Recipe;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -35,6 +36,16 @@ public interface RecipeRepository extends JpaRepository<Recipe, Long> {
     Page<Recipe> searchByTitleOrDescriptionOrTags(@Param("searchTerm") String searchTerm, Pageable pageable);
 
     /**
+     * Wyszukuje przepisy, które zawierają podaną frazę w tytule, opisie lub tagach i należą do określonej kategorii
+     */
+    @Query("SELECT DISTINCT r FROM Recipe r LEFT JOIN r.tags t WHERE " +
+           "(LOWER(r.title) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
+           "LOWER(r.description) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
+           "LOWER(t) LIKE LOWER(CONCAT('%', :searchTerm, '%'))) AND " +
+           "r.category = :category")
+    Page<Recipe> searchByTitleOrDescriptionOrTagsAndCategory(@Param("searchTerm") String searchTerm, @Param("category") Category category, Pageable pageable);
+
+    /**
      * Wyszukuje przepisy, które zawierają podaną frazę w tytule lub opisie
      */
     @Query("SELECT r FROM Recipe r WHERE LOWER(r.title) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR LOWER(r.description) LIKE LOWER(CONCAT('%', :searchTerm, '%'))")
@@ -47,4 +58,26 @@ public interface RecipeRepository extends JpaRepository<Recipe, Long> {
     Page<Recipe> findByAuthor_Email(String email, Pageable pageable);
 
     Page<Recipe> findByStatus(org.example.recipeapplication.model.RecipeStatus status, Pageable pageable);
+
+    @Query("SELECT DISTINCT r FROM Recipe r LEFT JOIN r.tags t WHERE " +
+            "(LOWER(r.title) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
+            "LOWER(r.description) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
+            "LOWER(t) LIKE LOWER(CONCAT('%', :searchTerm, '%'))) " +
+            "ORDER BY r.favoritesCount")
+    Page<Recipe> searchByTitleOrDescriptionOrTagsOrderByFollowersCount(
+            @Param("searchTerm") String searchTerm,
+            Pageable pageable
+    );
+
+    @Query("SELECT DISTINCT r FROM Recipe r LEFT JOIN r.tags t WHERE " +
+            "(LOWER(r.title) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
+            "LOWER(r.description) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
+            "LOWER(t) LIKE LOWER(CONCAT('%', :searchTerm, '%'))) AND " +
+            "r.category = :category " +
+            "ORDER BY r.favoritesCount")
+    Page<Recipe> searchByTitleOrDescriptionOrTagsAndCategoryOrderByFollowersCount(
+            @Param("searchTerm") String searchTerm,
+            @Param("category") Category category,
+            Pageable pageable
+    );
 }

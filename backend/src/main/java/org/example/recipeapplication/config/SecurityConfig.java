@@ -37,7 +37,9 @@ public class SecurityConfig {
             "/swagger-ui/**",
             "/webjars/**",
             "/swagger-ui.html",
-            "/uploads/**" // Dodana ścieżka dla plików obrazów w katalogu uploads
+            "/uploads/**", // Dodana ścieżka dla plików obrazów w katalogu uploads
+            "/api/v1/recipes", // Dodany główny endpoint przepisów
+            "/api/v1/categories" // Dodany endpoint kategorii
             // Usunięto "/api/v1/recipes/pending" z listy publicznych endpointów
     };
 
@@ -49,7 +51,8 @@ public class SecurityConfig {
             "/api/v1/recipes/{id:[\\d]+}",
             "/api/v1/users/*/followed-recipes", // przeglądanie śledzonych przepisów innych użytkowników
             "/api/v1/users/email/*", // wyszukiwanie użytkownika po emailu
-            "/api/v1/users/*/password"
+            "/api/v1/users/*/password",
+            "/api/v1/categories" // Dodane - publiczny dostęp do listy kategorii
     };
 
     private final JwtAuthenticationFilter jwtAuthFilter;
@@ -77,8 +80,16 @@ public class SecurityConfig {
                                 // Jawnie dodajemy endpoint uwierzytelniania, aby upewnić się, że jest dostępny
                                 .requestMatchers("/api/v1/auth/authenticate")
                                 .permitAll()
-                                // Publiczne endpointy - tylko GET
+                                // Publiczne endpointy - dostępne bez logowania
                                 .requestMatchers(GET, PUBLIC_RECIPE_ENDPOINTS)
+                                .permitAll()
+                                .requestMatchers(GET, "/api/v1/recipes")
+                                .permitAll()
+                                .requestMatchers(GET, "/api/v1/recipes/**")  // Dodane - zapewnia dostęp do wszystkich podścieżek GET /recipes/
+                                .permitAll()
+                                .requestMatchers(GET, "/api/v1/categories")
+                                .permitAll()
+                                .requestMatchers(GET, "/api/v1/categories/**") // Dodane - zapewnia dostęp do wszystkich podścieżek kategorii
                                 .permitAll()
 
                                 // Endpointy wymagające uwierzytelnienia - wszystkie operacje modyfikujące śledzenie
@@ -96,10 +107,7 @@ public class SecurityConfig {
                                 .authenticated()
                                 .requestMatchers(PUT,"/api/v1/users/*/password")
                                 .authenticated()
-                                .requestMatchers(GET, "/api/v1/recipes")
-                                .permitAll()
                                 .requestMatchers(POST, "/api/v1/recipes")
-//                                .hasAuthority("ADMIN")
                                 .authenticated()
                                 .requestMatchers(GET, "/api/v1/recipes/my-recipes")
                                 .authenticated()
@@ -132,9 +140,7 @@ public class SecurityConfig {
                                 .requestMatchers(POST, "/api/v1/recipes/*/rate")
                                 .authenticated()
 
-                                // Konfiguracja dla endpointów kategorii - wszystkie operacje tylko dla administratorów
-                                .requestMatchers(GET, "/api/v1/categories")
-                                .hasAuthority("ADMIN")
+                                // Konfiguracja dla endpointów kategorii
                                 .requestMatchers(POST, "/api/v1/categories")
                                 .hasAuthority("ADMIN")
                                 .requestMatchers(DELETE, "/api/v1/categories/**")

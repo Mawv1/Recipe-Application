@@ -16,6 +16,8 @@ import PendingRecipesAdmin from './admin/PendingRecipesAdmin';
 import Users from './admin/Users'; // Dodajemy import komponentu Users
 import Categories from './admin/Categories'; // Import komponentu Categories
 import AuthorizedImage from './components/AuthorizedImage'; // Dodajemy import komponentu AuthorizedImage
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faHeart, faStar, faClock, faUser } from '@fortawesome/free-solid-svg-icons';
 
 function App() {
   const { t } = useTranslation();
@@ -28,6 +30,13 @@ function App() {
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
   const pageSize = 5; // Ilość przepisów na stronę
+
+  // Nowe stany do sortowania i filtrowania
+  const [sortBy, setSortBy] = useState('dateOfCreation');
+  const [sortDirection, setSortDirection] = useState('desc');
+  const [selectedCategoryId, setSelectedCategoryId] = useState('');
+  const [categories, setCategories] = useState([]);
+  const [loadingCategories, setLoadingCategories] = useState(false);
 
   const navigate = useNavigate();
 
@@ -65,11 +74,13 @@ function App() {
       const res = await fetch(`http://localhost:8080/api/v1/recipes?page=${currentPage}&size=${pageSize}`);
       if (!res.ok) throw new Error(t('fetchRecipesError', 'Błąd podczas pobierania przepisów: ') + res.statusText);
       const data = await res.json();
-      // Poprawiona obsługa paginacji zgodnie z formatem API
+
+      // Poprawiona obsługa danych paginacji
       setRecipes(data.content || []);
-      // Dane paginacji znajdują się w obiekcie "page"
-      setTotalPages(data.page?.totalPages || 0);
-      setTotalElements(data.page?.totalElements || 0);
+
+      // Poprawne ustawienie danych paginacji
+      setTotalPages(data.totalPages || 0);
+      setTotalElements(data.totalElements || 0);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -77,10 +88,46 @@ function App() {
     }
   }, [t, currentPage, pageSize]);
 
-  // Funkcja do wyszukiwania przepisów
-  const searchRecipes = useCallback(async (query) => {
-    if (!query.trim()) {
-      fetchRecipes(); // Jeśli zapytanie jest puste, pobierz wszystkie przepisy
+  // Funkcja do pobierania kategorii
+  const fetchCategories = useCallback(async () => {
+    setLoadingCategories(true);
+    try {
+      const res = await fetch('http://localhost:8080/api/v1/categories');
+      if (!res.ok) throw new Error(t('fetchCategoriesError', 'Błąd podczas pobierania kategorii: ') + res.statusText);
+      const data = await res.json();
+      setCategories(data);
+    } catch (err) {
+      console.error("Błąd podczas pobierania kategorii:", err);
+      // Nie ustawiamy globalnego błędu, aby nie przeszkadzał w wyświetlaniu przepisów
+    } finally {
+      setLoadingCategories(false);
+    }
+  }, [t]);
+
+  // Funkcja do wyszukiwania przepisów z parametrami sortowania i kategorii
+  const searchRecipes = useCallback(async (query, sortOptions = {}) => {
+    // Używamy dostarczonych opcji sortowania lub domyślnych wartości ze stanów
+    const useSortBy = sortOptions.sortBy || sortBy;
+    const useSortDirection = sortOptions.sortDirection || sortDirection;
+    const useCategoryId = sortOptions.categoryId !== undefined ? sortOptions.categoryId : selectedCategoryId;
+
+    if (!query.trim() && !useCategoryId) {
+      // Pobierz wszystkie przepisy z opcjami sortowania
+      setLoading(true);
+      setError(null);
+      try {
+        let url = `http://localhost:8080/api/v1/recipes?page=${currentPage}&size=${pageSize}&sortBy=${useSortBy}&direction=${useSortDirection}`;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(t('fetchRecipesError', 'Błąd podczas pobierania przepisów: ') + res.statusText);
+        const data = await res.json();
+        setRecipes(data.content || []);
+        setTotalPages(data.totalPages || 0);
+        setTotalElements(data.totalElements || 0);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
       return;
     }
 
@@ -89,8 +136,18 @@ function App() {
     setError(null);
 
     try {
-      // Najpierw próbujemy użyć endpointu wyszukiwania w API
-      const res = await fetch(`http://localhost:8080/api/v1/recipes/search?search=${encodeURIComponent(searchTerm)}&page=${currentPage}&size=${pageSize}`);
+      // Budujemy URL z wszystkimi parametrami
+      let url = `http://localhost:8080/api/v1/recipes/search?page=${currentPage}&size=${pageSize}&sortBy=${useSortBy}&direction=${useSortDirection}`;
+
+      if (searchTerm) {
+        url += `&search=${encodeURIComponent(searchTerm)}`;
+      }
+
+      if (useCategoryId) {
+        url += `&categoryId=${useCategoryId}`;
+      }
+
+      const res = await fetch(url);
 
       if (!res.ok) {
         // Jeśli endpoint wyszukiwania nie jest dostępny lub wystąpił błąd,
@@ -101,33 +158,10 @@ function App() {
       }
 
       const data = await res.json();
-      // Poprawiona obsługa paginacji zgodnie z formatem API
+      // Obsługa paginacji
       let results = data.content || [];
-      // Dane paginacji znajdują się w obiekcie "page"
-      setTotalPages(data.page?.totalPages || 0);
-      setTotalElements(data.page?.totalElements || 0);
-
-      // Dodatkowa walidacja czy wyniki zawierają również przepisy z pasującymi tagami
-      // (na wypadek gdyby backend szukał tylko w tytułach)
-      if (results.length > 0) {
-        // Sprawdzamy czy backend już uwzględnił tagi w wyszukiwaniu
-        const hasTagMatches = results.some(recipe =>
-          recipe.tags && recipe.tags.some(tag =>
-            tag.toLowerCase().includes(searchTerm)
-          )
-        );
-
-        // Jeśli nie ma dopasowań tagów w wynikach, wykonujemy dodatkowe lokalne filtrowanie
-        if (!hasTagMatches) {
-          await fetchAllAndFilterLocally(searchTerm);
-          return;
-        }
-      } else {
-        // Jeśli nie ma wyników, spróbuj wyszukać lokalnie po tagach
-        await fetchAllAndFilterLocally(searchTerm);
-        return;
-      }
-
+      setTotalPages(data.totalPages || 0);
+      setTotalElements(data.totalElements || 0);
       setRecipes(results);
     } catch (err) {
       console.error("Błąd podczas wyszukiwania:", err);
@@ -136,11 +170,26 @@ function App() {
     } finally {
       setLoading(false);
     }
-  }, [t, currentPage, pageSize, fetchAllAndFilterLocally]);
+  }, [t, currentPage, pageSize, fetchAllAndFilterLocally, sortBy, sortDirection, selectedCategoryId]);
+
+  // Funkcja do aplikowania filtrów i sortowania
+  const applyFiltersAndSort = () => {
+    searchRecipes(searchQuery);
+  };
 
   useEffect(() => {
     fetchRecipes();
   }, [fetchRecipes]);
+
+  // Efekt do pobierania kategorii przy pierwszym renderowaniu
+  useEffect(() => {
+    fetchCategories();
+  }, [fetchCategories]);
+
+  // Efekt do odświeżania przepisów przy zmianie strony lub parametrów sortowania/filtrowania
+  useEffect(() => {
+    searchRecipes(searchQuery);
+  }, [currentPage, sortBy, sortDirection, selectedCategoryId, searchQuery, searchRecipes]);
 
   // Nasłuchiwanie na zmiany w przepisach (oceny, ulubione)
   useEffect(() => {
@@ -165,7 +214,7 @@ function App() {
             <main className="container py-4">
               <section className="row justify-content-center mb-4">
                 <div className="col-md-8">
-                  <div className="input-group">
+                  <div className="input-group mb-3">
                     <input
                       type="text"
                       className="form-control"
@@ -178,6 +227,69 @@ function App() {
                       className="btn btn-warning"
                       onClick={() => searchRecipes(searchQuery)}
                     >{t('searchButton')}</button>
+                  </div>
+
+                  {/* Filtry i sortowanie */}
+                  <div className="filters-and-sorting bg-white p-3 rounded shadow-sm mb-4">
+                    <h5 className="mb-3">{t('filtersAndSorting')}</h5>
+                    <div className="row">
+                      {/* Wybór kategorii */}
+                      <div className="col-md-4 mb-2">
+                        <label htmlFor="categoryFilter" className="form-label">{t('category')}:</label>
+                        <select
+                          id="categoryFilter"
+                          className="form-select"
+                          value={selectedCategoryId}
+                          onChange={(e) => setSelectedCategoryId(e.target.value)}
+                        >
+                          <option value="">{t('allCategories')}</option>
+                          {categories.map(category => (
+                            <option key={category.id} value={category.id}>
+                              {category.name}
+                            </option>
+                          ))}
+                        </select>
+                        {loadingCategories && <small className="text-muted">{t('loadingCategories')}</small>}
+                      </div>
+
+                      {/* Sortowanie */}
+                      <div className="col-md-4 mb-2">
+                        <label htmlFor="sortBy" className="form-label">{t('sortBy')}:</label>
+                        <select
+                          id="sortBy"
+                          className="form-select"
+                          value={sortBy}
+                          onChange={(e) => setSortBy(e.target.value)}
+                        >
+                          <option value="dateOfCreation">{t('sortByDateCreated')}</option>
+                          <option value="rating">{t('sortByRating')}</option>
+                          <option value="favoritesCount">{t('sortByPopularity')}</option>
+                        </select>
+                      </div>
+
+                      {/* Kierunek sortowania */}
+                      <div className="col-md-4 mb-2">
+                        <label htmlFor="sortDirection" className="form-label">{t('sortDirection')}:</label>
+                        <select
+                          id="sortDirection"
+                          className="form-select"
+                          value={sortDirection}
+                          onChange={(e) => setSortDirection(e.target.value)}
+                        >
+                          <option value="desc">{t('sortDesc')}</option>
+                          <option value="asc">{t('sortAsc')}</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="d-flex justify-content-end mt-3">
+                      <button
+                        className="btn btn-primary"
+                        onClick={applyFiltersAndSort}
+                      >
+                        {t('applyFilters')}
+                      </button>
+                    </div>
                   </div>
                 </div>
               </section>
@@ -219,21 +331,21 @@ function App() {
                                   <h3 className="mb-2">{recipe.title}</h3>
 
                                   <p className="recipe-author mb-2">
-                                    <i className="fas fa-user me-1 text-secondary"></i> {recipe.author.firstName} {recipe.author.lastName}
+                                    <FontAwesomeIcon icon={faUser} className="me-1 text-secondary" /> {recipe.author.firstName} {recipe.author.lastName}
                                   </p>
 
                                   <div className="recipe-meta d-flex align-items-center flex-wrap gap-3 mb-3">
                                     <span className="d-inline-flex align-items-center">
-                                      <i className="fas fa-star text-warning me-2"></i>
+                                      <FontAwesomeIcon icon={faStar} className="text-warning me-2" />
                                       <span>{recipe.rate ? recipe.rate.toFixed(1) : '0.0'}</span>
                                       <small className="text-muted ms-1">({recipe.ratingCount || 0})</small>
                                     </span>
                                     <span className="d-inline-flex align-items-center">
-                                      <i className="fas fa-heart text-danger me-2"></i>
+                                      <FontAwesomeIcon icon={faHeart} className="text-danger me-2" />
                                       <span>{recipe.favoritesCount || 0}</span>
                                     </span>
                                     <span className="d-inline-flex align-items-center">
-                                      <i className="fas fa-clock text-primary me-2"></i>
+                                      <FontAwesomeIcon icon={faClock} className="text-primary me-2" />
                                       <span>{recipe.estimatedTimeToPrepare || t('unknown', 'nieznany')}</span>
                                     </span>
                                   </div>

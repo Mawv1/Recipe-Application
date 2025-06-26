@@ -3,8 +3,10 @@ import React from 'react';
 import { Container, Row, Col, Nav, Card, Alert } from 'react-bootstrap';
 import { Outlet, Link, useLocation, Navigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext'; // Zakładam, że istnieje taki kontekst
+import { useTranslation } from 'react-i18next';
 
 function AdminPanel() {
+    const { t } = useTranslation();
     const { currentUser, isAuthenticated } = useAuth();
     const location = useLocation();
 
@@ -18,9 +20,9 @@ function AdminPanel() {
         return (
             <Container className="py-5">
                 <Card className="text-center p-5">
-                    <h3>Brak dostępu</h3>
-                    <p>Nie masz uprawnień do wyświetlenia panelu administracyjnego.</p>
-                    <Link to="/" className="btn btn-primary">Wróć na stronę główną</Link>
+                    <h3>{t('noAccess')}</h3>
+                    <p>{t('noAdminRights')}</p>
+                    <Link to="/" className="btn btn-primary">{t('backToHome')}</Link>
                 </Card>
             </Container>
         );
@@ -28,26 +30,26 @@ function AdminPanel() {
 
     return (
         <Container fluid className="py-4">
-            <h1 className="mb-4">Panel Administratora</h1>
+            <h1 className="mb-4">{t('adminPanel')}</h1>
             <Row>
                 <Col md={3}>
                     <Nav variant="pills" className="flex-column">
                         <Nav.Item>
                             <Nav.Link as={Link} to="/admin/pending-recipes"
                                       active={location.pathname === '/admin/pending-recipes'}>
-                                Oczekujące przepisy
+                                {t('adminPendingRecipes')}
                             </Nav.Link>
                         </Nav.Item>
                         <Nav.Item>
                             <Nav.Link as={Link} to="/admin/users"
                                       active={location.pathname === '/admin/users'}>
-                                Zarządzanie użytkownikami
+                                {t('adminUsers')}
                             </Nav.Link>
                         </Nav.Item>
                         <Nav.Item>
                             <Nav.Link as={Link} to="/admin/categories"
                                       active={location.pathname === '/admin/categories'}>
-                                Zarządzanie kategoriami
+                                {t('adminCategories')}
                             </Nav.Link>
                         </Nav.Item>
                     </Nav>
@@ -63,3 +65,4 @@ function AdminPanel() {
 }
 
 export default AdminPanel;
+

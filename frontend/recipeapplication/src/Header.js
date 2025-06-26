@@ -75,18 +75,18 @@ function Header() {
                         {t('appName', 'Recipe App')}
                     </Link>
                     <div className="d-flex align-items-center">
-                        {/*<div className="btn-group me-3">*/}
-                        {/*    <button*/}
-                        {/*        onClick={() => i18n.changeLanguage('pl')}*/}
-                        {/*        className={`btn btn-sm ${i18n.language === 'pl' ? 'btn-secondary' : 'btn-outline-secondary'}`}>*/}
-                        {/*        PL*/}
-                        {/*    </button>*/}
-                        {/*    <button*/}
-                        {/*        onClick={() => i18n.changeLanguage('en')}*/}
-                        {/*        className={`btn btn-sm ${i18n.language === 'en' ? 'btn-secondary' : 'btn-outline-secondary'}`}>*/}
-                        {/*        EN*/}
-                        {/*    </button>*/}
-                        {/*</div>*/}
+                        <div className="btn-group me-3">
+                            <button
+                                onClick={() => i18n.changeLanguage('pl')}
+                                className={`btn btn-sm ${i18n.language === 'pl' ? 'btn-secondary' : 'btn-outline-secondary'}`}>
+                                PL
+                            </button>
+                            <button
+                                onClick={() => i18n.changeLanguage('en')}
+                                className={`btn btn-sm ${i18n.language === 'en' ? 'btn-secondary' : 'btn-outline-secondary'}`}>
+                                EN
+                            </button>
+                        </div>
                         {isLoggedIn ? (
                             <div className="d-flex align-items-center">
                                 {isAdmin && (

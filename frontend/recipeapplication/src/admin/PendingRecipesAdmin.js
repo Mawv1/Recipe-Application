@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Container, Table, Button, Alert, Spinner } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 function PendingRecipesAdmin() {
+  const { t } = useTranslation();
   const [pendingRecipes, setPendingRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -30,7 +32,7 @@ function PendingRecipesAdmin() {
       if (!response.ok) {
         const errorText = await response.text();
         console.error('Błąd odpowiedzi:', errorText);
-        throw new Error(`Błąd pobierania przepisów: ${response.status} ${errorText}`);
+        throw new Error(`${t('fetchRecipesError')} ${response.status} ${errorText}`);
       }
       const data = await response.json();
       console.log('Otrzymane dane:', data);
@@ -61,8 +63,8 @@ function PendingRecipesAdmin() {
         method: 'PATCH',
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      if (!response.ok) throw new Error('Błąd zmiany statusu');
-      setSuccess('Status zmieniony!');
+      if (!response.ok) throw new Error(t('errorChangingStatus'));
+      setSuccess(t('statusChanged'));
       fetchPendingRecipes();
     } catch (err) {
       setError(err.message);
@@ -71,23 +73,23 @@ function PendingRecipesAdmin() {
 
   return (
     <div>
-      <h2 className="mb-4">Oczekujące przepisy</h2>
+      <h2 className="mb-4">{t('pendingRecipes')}</h2>
       {error && <Alert variant="danger">{error}</Alert>}
       {success && <Alert variant="success">{success}</Alert>}
       {loading ? <Spinner animation="border" /> : (
         <Table striped bordered hover>
           <thead>
             <tr>
-              <th>ID</th>
-              <th>Tytuł</th>
-              <th>Autor</th>
-              <th>Data dodania</th>
-              <th>Akcje</th>
+              <th>{t('recipeId')}</th>
+              <th>{t('recipeTitle')}</th>
+              <th>{t('recipeAuthor')}</th>
+              <th>{t('addedDate')}</th>
+              <th>{t('actions')}</th>
             </tr>
           </thead>
           <tbody>
             {pendingRecipes.length === 0 && (
-              <tr><td colSpan="5" className="text-center">Brak oczekujących przepisów</td></tr>
+              <tr><td colSpan="5" className="text-center">{t('noPendingRecipes')}</td></tr>
             )}
             {pendingRecipes.map(recipe => (
               <tr key={recipe.id}>
@@ -96,9 +98,9 @@ function PendingRecipesAdmin() {
                 <td>{recipe.author.firstName + ' ' + recipe.author.lastName || '-'}</td>
                 <td>{recipe.dateOfCreation ? new Date(recipe.dateOfCreation).toLocaleString() : '-'}</td>
                 <td>
-                  <Button variant="success" size="sm" className="me-2" onClick={() => handleStatusChange(recipe.id, 'ACCEPTED')}>Akceptuj</Button>
-                  <Button variant="danger" size="sm" onClick={() => handleStatusChange(recipe.id, 'REJECTED')}>Odrzuć</Button>
-                  <Button variant="outline-primary" size="sm" className="ms-2" onClick={() => navigate(`/recipes/${recipe.id}`)}>Podgląd</Button>
+                  <Button variant="success" size="sm" className="me-2" onClick={() => handleStatusChange(recipe.id, 'ACCEPTED')}>{t('acceptRecipe')}</Button>
+                  <Button variant="danger" size="sm" onClick={() => handleStatusChange(recipe.id, 'REJECTED')}>{t('rejectRecipe')}</Button>
+                  <Button variant="outline-primary" size="sm" className="ms-2" onClick={() => navigate(`/recipes/${recipe.id}`)}>{t('previewRecipe')}</Button>
                 </td>
               </tr>
             ))}

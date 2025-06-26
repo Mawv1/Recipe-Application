@@ -36,39 +36,49 @@ public class RecipeController {
 
     @GetMapping
     @Operation(summary = "Pobierz wszystkie przepisy",
-              description = "Zwraca stronę przepisów z możliwością sortowania i paginacji")
+              description = "Zwraca stronę przepisów z możliwością sortowania, paginacji i filtrowania po kategoriach")
     public ResponseEntity<Page<RecipeResponseDTO>> getAllRecipes(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int size,
+            @RequestParam(defaultValue = "dateOfCreation") String sortBy,
+            @RequestParam(defaultValue = "desc") String direction,
+            @RequestParam(required = false) Long categoryId
+    ) {
+        Sort.Direction sortDirection = Sort.Direction.fromString(direction);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
+        return ResponseEntity.ok(categoryId == null
+                ? recipeService.getAllRecipes(pageable)
+                : recipeService.getRecipesByCategory(categoryId, pageable));
+    }
+
+    @GetMapping("/search")
+    @Operation(summary = "Wyszukaj przepisy",
+              description = "Wyszukuje przepisy zawierające podaną frazę w nazwie lub opisie, z możliwością sortowania i filtrowania po kategoriach")
+    public ResponseEntity<Page<RecipeResponseDTO>> searchRecipes(
+            @RequestParam(required = false, defaultValue = "") String search,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size,
+            @RequestParam(defaultValue = "dateOfCreation") String sortBy,
+            @RequestParam(defaultValue = "desc") String direction,
+            @RequestParam(required = false) Long categoryId
+    ) {
+        Sort.Direction sortDirection = Sort.Direction.fromString(direction);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
+        return ResponseEntity.ok(recipeService.searchRecipes(search, pageable, categoryId));
+    }
+
+    @GetMapping("/category/{categoryId}")
+    @Operation(summary = "Pobierz przepisy z kategorii",
+              description = "Zwraca przepisy należące do określonej kategorii z możliwością sortowania i paginacji")
+    public ResponseEntity<Page<RecipeResponseDTO>> getRecipesByCategory(
+            @PathVariable Long categoryId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "dateOfCreation") String sortBy,
             @RequestParam(defaultValue = "desc") String direction
     ) {
         Sort.Direction sortDirection = Sort.Direction.fromString(direction);
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
-        return ResponseEntity.ok(recipeService.getAllRecipes(pageable));
-    }
-
-    @GetMapping("/search")
-    @Operation(summary = "Wyszukaj przepisy",
-              description = "Wyszukuje przepisy zawierające podaną frazę w nazwie lub opisie")
-    public ResponseEntity<Page<RecipeResponseDTO>> searchRecipes(
-            @RequestParam String search,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
-        Pageable pageable = PageRequest.of(page, size);
-        return ResponseEntity.ok(recipeService.searchRecipes(search, pageable));
-    }
-
-    @GetMapping("/category/{categoryId}")
-    @Operation(summary = "Pobierz przepisy z kategorii",
-              description = "Zwraca przepisy należące do określonej kategorii")
-    public ResponseEntity<Page<RecipeResponseDTO>> getRecipesByCategory(
-            @PathVariable Long categoryId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
-        Pageable pageable = PageRequest.of(page, size);
         return ResponseEntity.ok(recipeService.getRecipesByCategory(categoryId, pageable));
     }
 
@@ -78,7 +88,7 @@ public class RecipeController {
     public ResponseEntity<Page<RecipeResponseDTO>> getUserRecipes(
             @PathVariable Long userId,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "5") int size
     ) {
         Pageable pageable = PageRequest.of(page, size);
         return ResponseEntity.ok(recipeService.getUserRecipes(userId, pageable));
@@ -257,4 +267,3 @@ public class RecipeController {
         return ResponseEntity.noContent().build();
     }
 }
-

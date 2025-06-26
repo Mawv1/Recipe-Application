@@ -60,6 +60,42 @@ public class RecipeService {
         return recipeRepository.searchByTitleOrDescriptionOrTags(search, pageable).map(this::mapToDTO);
     }
 
+    public Page<RecipeResponseDTO> searchRecipes(String search, Pageable pageable, Long categoryId) {
+        if (categoryId == null) {
+            // Sprawdź typ sortowania
+            String sortField = pageable.getSort().iterator().next().getProperty();
+            if (sortField.equals("followersCount")) {
+                // Specjalne sortowanie po liczbie polubień przepisu
+                return recipeRepository.searchByTitleOrDescriptionOrTagsOrderByFollowersCount(
+                        search,
+                        pageable
+                ).map(this::mapToDTO);
+            } else {
+                // Standardowe wyszukiwanie z domyślnym sortowaniem lub po ratingu
+                return recipeRepository.searchByTitleOrDescriptionOrTags(search, pageable).map(this::mapToDTO);
+            }
+        } else {
+            // Z filtrowaniem po kategorii
+            Category category = categoryRepository.findById(categoryId)
+                    .orElseThrow(() -> new EntityNotFoundException("Category not found"));
+
+            // Sprawdź typ sortowania
+            String sortField = pageable.getSort().iterator().next().getProperty();
+            if (sortField.equals("followersCount")) {
+                // Specjalne sortowanie po liczbie polubień przepisu
+                return recipeRepository.searchByTitleOrDescriptionOrTagsAndCategoryOrderByFollowersCount(
+                        search,
+                        category,
+                        pageable
+                ).map(this::mapToDTO);
+            } else {
+                // Standardowe sortowanie lub po ratingu
+                return recipeRepository.searchByTitleOrDescriptionOrTagsAndCategory(search, category, pageable)
+                        .map(this::mapToDTO);
+            }
+        }
+    }
+
     public RecipeResponseDTO addRecipe(RecipeRequestDTO dto, String email) {
         // Pobierz użytkownika z bazy
         AppUser author = userRepository.findByEmail(email)
@@ -217,7 +253,7 @@ public class RecipeService {
 
         // Usuń stare składniki i dodaj nowe
         if (dto.ingredients() != null && !dto.ingredients().isEmpty()) {
-            // Usuń stare relacje ze składnikami
+            // Usuń stare relacje ze sk��adnikami
             if (recipe.getIngredients() != null) {
                 // Nie usuwamy samych składników z bazy, tylko odłączamy je od przepisu
                 recipe.setIngredients(null);

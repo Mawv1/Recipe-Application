@@ -88,6 +88,11 @@ function RecipeDetails() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
+  // Stany do obsługi usuwania przepisu
+  const [showRecipeDeleteModal, setShowRecipeDeleteModal] = useState(false);
+  const [recipeDeleteLoading, setRecipeDeleteLoading] = useState(false);
+  const [recipeDeleteError, setRecipeDeleteError] = useState(null);
+
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarOpen, setSnackbarOpen] = useState(false);
 
@@ -137,6 +142,73 @@ function RecipeDetails() {
     if (recipe && recipe.author && recipe.author.id === currentUser.id) return true;
 
     return false;
+  };
+
+  // Funkcja sprawdzająca, czy użytkownik może usunąć przepis
+  const canDeleteRecipe = () => {
+    if (!isAuthenticated || !currentUser || !recipe) return false;
+
+    // Admin może usuwać wszystkie przepisy
+    if (currentUser.role === 'ADMIN') return true;
+
+    // Autor przepisu może usunąć swój przepis
+    if (recipe.author && recipe.author.id === currentUser.id) return true;
+
+    return false;
+  };
+
+  // Funkcja otwierająca modal potwierdzenia usunięcia przepisu
+  const openRecipeDeleteModal = () => {
+    setShowRecipeDeleteModal(true);
+  };
+
+  // Funkcja zamykająca modal potwierdzenia usunięcia przepisu
+  const closeRecipeDeleteModal = () => {
+    setShowRecipeDeleteModal(false);
+  };
+
+  // Funkcja usuwająca przepis
+  const handleDeleteRecipe = async () => {
+    if (!isAuthenticated) return;
+
+    setRecipeDeleteLoading(true);
+    setRecipeDeleteError(null);
+
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`http://localhost:8080/api/v1/recipes/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!res.ok) {
+        if (res.status === 401 || res.status === 403) {
+          localStorage.removeItem('token');
+          localStorage.removeItem('refresh_token');
+          window.dispatchEvent(new Event('tokenChange'));
+          navigate('/login', { replace: true });
+          throw new Error(t('sessionExpired', 'Sesja wygasła. Zaloguj się ponownie.'));
+        }
+        throw new Error(`${t('deleteRecipeError', 'Błąd podczas usuwania przepisu')}: ${res.status}`);
+      }
+
+      // Wyświetl komunikat o sukcesie
+      setSnackbarMessage(t('recipeDeleted', 'Przepis został usunięty pomyślnie.'));
+      setSnackbarOpen(true);
+
+      // Emituj zdarzenie zmiany przepisu, aby odświeżyć listę na stronie głównej
+      window.dispatchEvent(new Event('recipeChange'));
+
+      // Przekieruj użytkownika do strony głównej
+      navigate('/', { replace: true });
+    } catch (err) {
+      console.error('Błąd podczas usuwania przepisu:', err);
+      setRecipeDeleteError(err.message);
+    } finally {
+      setRecipeDeleteLoading(false);
+    }
   };
 
   // Funkcja otwierająca modal potwierdzenia usunięcia komentarza
@@ -791,7 +863,9 @@ function RecipeDetails() {
       // Emituj zdarzenie zmiany przepisu, aby odświeżyć listę na stronie głównej
       window.dispatchEvent(new Event('recipeChange'));
 
-      alert(t('ratingSuccess', 'Twoja ocena została zapisana!'));
+      // Wyświetl komunikat o sukcesie
+      setSnackbarMessage(t('ratingSuccess', 'Twoja ocena została zapisana!'));
+      setSnackbarOpen(true);
     } catch (err) {
       setRatingError(err.message);
     } finally {
@@ -860,6 +934,64 @@ function RecipeDetails() {
         </div>
       )}
 
+      {/* Modal potwierdzający usunięcie przepisu */}
+      {showRecipeDeleteModal && (
+        <div className="modal fade show" style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)' }} tabIndex="-1">
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">{t('deleteRecipeTitle', 'Usuń przepis')}</h5>
+                <button type="button" className="btn-close" onClick={closeRecipeDeleteModal} disabled={recipeDeleteLoading}></button>
+              </div>
+              <div className="modal-body">
+                <p className="mb-4">{t('deleteRecipeConfirmation', 'Czy na pewno chcesz usunąć ten przepis? Ta operacja jest nieodwracalna.')}</p>
+                {recipe && (
+                  <div className="p-3 bg-light rounded text-center">
+                    <strong className="d-block mb-2">{recipe.title}</strong>
+                    {recipe.mainImageUrl && (
+                      <AuthorizedImage
+                        src={recipe.mainImageUrl}
+                        alt={recipe.title}
+                        className="img-fluid rounded mb-2"
+                        style={{ maxHeight: '200px', objectFit: 'cover' }}
+                      />
+                    )}
+                  </div>
+                )}
+                {recipeDeleteError && (
+                  <div className="alert alert-danger mt-3">
+                    {recipeDeleteError}
+                  </div>
+                )}
+              </div>
+              <div className="modal-footer">
+                <button type="button" className="btn btn-secondary" onClick={closeRecipeDeleteModal} disabled={recipeDeleteLoading}>
+                  {t('cancel', 'Anuluj')}
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-danger"
+                  onClick={handleDeleteRecipe}
+                  disabled={recipeDeleteLoading}
+                >
+                  {recipeDeleteLoading ? (
+                    <>
+                      <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                      {t('deleting', 'Usuwanie...')}
+                    </>
+                  ) : (
+                    <>
+                      <i className="fas fa-trash-alt me-2"></i>
+                      {t('deleteRecipe', 'Usuń przepis')}
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="row">
         <div className="col-12">
           <div className="recipe-details-content">
@@ -869,36 +1001,49 @@ function RecipeDetails() {
                 {t('back', 'Powrót')}
               </button>
 
-              {isAuthenticated && (
-                <div className="recipe-actions">
+              <div className="d-flex align-items-center">
+                {canDeleteRecipe() && (
                   <button
-                    className={`follow-btn ${isFollowed ? 'followed' : ''}`}
-                    onClick={toggleFollow}
-                    disabled={followLoading}
-                    title={isFollowed
-                      ? t('removeFromFavorites', 'Usuń z ulubionych')
-                      : t('addToFavorites', 'Dodaj do ulubionych')}
+                    className="btn btn-outline-danger me-3"
+                    onClick={openRecipeDeleteModal}
+                    title={t('deleteRecipeConfirmation', 'Usuń przepis')}
                   >
-                    {followLoading ? (
-                      <span className="loading-spinner"></span>
-                    ) : (
-                      <>
-                        <FontAwesomeIcon icon={isFollowed ? solidHeart : regularHeart} />
-                        {isFollowed && (
-                          <span className="remove-indicator">
-                            <FontAwesomeIcon icon={faTimes} />
-                          </span>
-                        )}
-                      </>
-                    )}
+                    <i className="fas fa-trash-alt me-1"></i>
+                    {t('delete', 'Usuń')}
                   </button>
-                  <span className="favorite-text">
-                    {isFollowed
-                      ? t('removeFromFavorites', 'Usuń z ulubionych')
-                      : t('addToFavorites', 'Dodaj do ulubionych')}
-                  </span>
-                </div>
-              )}
+                )}
+
+                {isAuthenticated && (
+                  <div className="recipe-actions">
+                    <button
+                      className={`follow-btn ${isFollowed ? 'followed' : ''}`}
+                      onClick={toggleFollow}
+                      disabled={followLoading}
+                      title={isFollowed
+                        ? t('removeFromFavorites', 'Usuń z ulubionych')
+                        : t('addToFavorites', 'Dodaj do ulubionych')}
+                    >
+                      {followLoading ? (
+                        <span className="loading-spinner"></span>
+                      ) : (
+                        <>
+                          <FontAwesomeIcon icon={isFollowed ? solidHeart : regularHeart} />
+                          {isFollowed && (
+                            <span className="remove-indicator">
+                              <FontAwesomeIcon icon={faTimes} />
+                            </span>
+                          )}
+                        </>
+                      )}
+                    </button>
+                    <span className="favorite-text">
+                      {isFollowed
+                        ? t('removeFromFavorites', 'Usuń z ulubionych')
+                        : t('addToFavorites', 'Dodaj do ulubionych')}
+                    </span>
+                  </div>
+                )}
+              </div>
             </div>
 
             <h2>{recipe.title}</h2>
@@ -1026,7 +1171,7 @@ function RecipeDetails() {
                             className={`btn btn-sm ${userLikes[comment.id] ? 'btn-success' : 'btn-outline-success'} me-3 d-flex align-items-center px-3 py-2`}
                             onClick={() => handleLikeComment(comment.id)}
                             disabled={!isAuthenticated}
-                            title={userLikes[comment.id] ? t('removeLike', 'Usu�� polubienie') : t('like', 'Polub')}
+                            title={userLikes[comment.id] ? t('removeLike', 'Usuń polubienie') : t('like', 'Polub')}
                           >
                             <i className="fas fa-thumbs-up me-2" style={{ fontSize: '1.1rem' }}></i>
                             <span className="fw-bold">{comment.likesCount || 0}</span>

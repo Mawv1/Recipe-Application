@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Button, Modal, Form, Badge, Alert, Spinner } from 'react-bootstrap';
+import { useTranslation } from 'react-i18next';
 
 function Users() {
+    const { t } = useTranslation();
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -23,14 +25,14 @@ function Users() {
             });
 
             if (!response.ok) {
-                throw new Error(`Błąd HTTP: ${response.status}`);
+                throw new Error(`${t('fetchUsersError')} ${response.status}`);
             }
 
             const data = await response.json();
             setUsers(data);
         } catch (err) {
             console.error("Błąd podczas pobierania użytkowników:", err);
-            setError('Nie udało się pobrać listy użytkowników. ' + err.message);
+            setError(t('fetchUsersError') + ' ' + err.message);
         } finally {
             setLoading(false);
         }
@@ -59,7 +61,7 @@ function Users() {
             });
 
             if (!response.ok) {
-                throw new Error(`Błąd HTTP: ${response.status}`);
+                throw new Error(`${t('banningError')} ${response.status}`);
             }
 
             const updatedUser = await response.json();
@@ -67,12 +69,14 @@ function Users() {
             // Odświeżenie listy użytkowników po operacji banowania
             await fetchUsers();
 
-            setActionSuccess(`Użytkownik ${selectedUser.firstName} ${selectedUser.lastName} został zbanowany.`);
+            setActionSuccess(t('userHasBanned', 'Użytkownik {{name}} został zbanowany.', {
+                name: `${selectedUser.firstName} ${selectedUser.lastName}`
+            }));
             setShowBanModal(false);
             setBanReason('');
         } catch (err) {
             console.error("Błąd podczas banowania użytkownika:", err);
-            setError('Nie udało się zbanować użytkownika. ' + err.message);
+            setError(t('banningError') + ' ' + err.message);
         } finally {
             setLoading(false);
         }
@@ -94,7 +98,7 @@ function Users() {
             });
 
             if (!response.ok) {
-                throw new Error(`Błąd HTTP: ${response.status}`);
+                throw new Error(`${t('unbanningError')} ${response.status}`);
             }
 
             const updatedUser = await response.json();
@@ -102,10 +106,12 @@ function Users() {
             // Odświeżenie listy użytkowników po operacji odbanowania
             await fetchUsers();
 
-            setActionSuccess(`Użytkownik ${user.firstName} ${user.lastName} został odbanowany.`);
+            setActionSuccess(t('userUnbanned', 'Użytkownik {{name}} został odbanowany.', {
+                name: `${user.firstName} ${user.lastName}`
+            }));
         } catch (err) {
             console.error("Błąd podczas odbanowania użytkownika:", err);
-            setError('Nie udało się odbanować użytkownika. ' + err.message);
+            setError(t('unbanningError') + ' ' + err.message);
         } finally {
             setLoading(false);
         }
@@ -131,7 +137,7 @@ function Users() {
 
     return (
         <div>
-            <h2 className="mb-4">Zarządzanie Użytkownikami</h2>
+            <h2 className="mb-4">{t('userManagement')}</h2>
 
             <Button
                 variant="outline-primary"
@@ -139,7 +145,7 @@ function Users() {
                 onClick={fetchUsers}
                 disabled={loading}
             >
-                <i className="fas fa-sync-alt me-1"></i> Odśwież listę
+                <i className="fas fa-sync-alt me-1"></i> {t('refreshList')}
             </Button>
 
             {error && <Alert variant="danger">{error}</Alert>}
@@ -148,13 +154,13 @@ function Users() {
             <Table striped bordered hover responsive>
                 <thead>
                     <tr>
-                        <th>ID</th>
-                        <th>Imię</th>
-                        <th>Nazwisko</th>
-                        <th>Email</th>
-                        <th>Rola</th>
-                        <th>Status</th>
-                        <th>Akcje</th>
+                        <th>{t('userId')}</th>
+                        <th>{t('userFirstName')}</th>
+                        <th>{t('userLastName')}</th>
+                        <th>{t('userEmail')}</th>
+                        <th>{t('userRole')}</th>
+                        <th>{t('userStatus')}</th>
+                        <th>{t('userActions')}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -167,8 +173,8 @@ function Users() {
                             <td>{user.role}</td>
                             <td>
                                 {user.banned ?
-                                    <Badge bg="danger">Zbanowany</Badge> :
-                                    <Badge bg="success">Aktywny</Badge>
+                                    <Badge bg="danger">{t('userBanned')}</Badge> :
+                                    <Badge bg="success">{t('userActive')}</Badge>
                                 }
                             </td>
                             <td>
@@ -178,7 +184,7 @@ function Users() {
                                     className="me-1"
                                     onClick={() => console.log("Dane użytkownika:", JSON.stringify(user, null, 2))}
                                 >
-                                    <i className="fas fa-info-circle"></i>
+                                    <i className="fas fa-info-circle"></i> {t('userDetails')}
                                 </Button>
                                 {user.banned ? (
                                     <Button
@@ -187,7 +193,7 @@ function Users() {
                                         onClick={() => handleUnbanUser(user)}
                                         disabled={loading}
                                     >
-                                        Odbanuj
+                                        {t('unbanUser')}
                                     </Button>
                                 ) : (
                                     <Button
@@ -196,7 +202,7 @@ function Users() {
                                         onClick={() => openBanModal(user)}
                                         disabled={loading}
                                     >
-                                        Zbanuj
+                                        {t('banUser')}
                                     </Button>
                                 )}
                             </td>
@@ -208,14 +214,16 @@ function Users() {
             {/* Modal do banowania użytkownika */}
             <Modal show={showBanModal} onHide={() => setShowBanModal(false)}>
                 <Modal.Header closeButton>
-                    <Modal.Title>Banowanie użytkownika</Modal.Title>
+                    <Modal.Title>{t('banningUser')}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     {selectedUser && (
                         <>
-                            <p>Czy na pewno chcesz zbanować użytkownika <strong>{selectedUser.firstName} {selectedUser.lastName}</strong>?</p>
+                            <p>
+                                {t('confirmBanUser')} <strong>{selectedUser.firstName} {selectedUser.lastName}</strong>?
+                            </p>
                             <Form.Group>
-                                <Form.Label>Powód bana (opcjonalnie)</Form.Label>
+                                <Form.Label>{t('banReason')}</Form.Label>
                                 <Form.Control
                                     as="textarea"
                                     rows={3}
@@ -228,14 +236,14 @@ function Users() {
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={() => setShowBanModal(false)}>
-                        Anuluj
+                        {t('cancel')}
                     </Button>
                     <Button
                         variant="danger"
                         onClick={handleBanUser}
                         disabled={loading}
                     >
-                        {loading ? <Spinner animation="border" size="sm" /> : 'Zbanuj'}
+                        {loading ? <Spinner animation="border" size="sm" /> : t('banUser')}
                     </Button>
                 </Modal.Footer>
             </Modal>

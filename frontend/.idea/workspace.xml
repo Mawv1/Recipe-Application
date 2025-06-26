@@ -4,16 +4,53 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="22b7922e-f76a-4792-913c-1abe50672504" name="Changes" comment="Modified the way images are added to recipe">
-      <change afterPath="$PROJECT_DIR$/recipeapplication/src/admin/AdminPanel.js" afterDir="false" />
+    <list default="true" id="22b7922e-f76a-4792-913c-1abe50672504" name="Changes" comment="Added descriptions to endpoints in swagger">
+      <change beforePath="$PROJECT_DIR$/../.vscode/settings.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/src/main/java/org/example/recipeapplication/config/JwtAuthenticationFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/src/main/java/org/example/recipeapplication/config/JwtAuthenticationFilter.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../backend/src/main/java/org/example/recipeapplication/config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/src/main/java/org/example/recipeapplication/config/SecurityConfig.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../backend/src/main/java/org/example/recipeapplication/controller/RecipeController.java" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/src/main/java/org/example/recipeapplication/controller/RecipeController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/src/main/java/org/example/recipeapplication/repos/RecipeRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/src/main/java/org/example/recipeapplication/repos/RecipeRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/src/main/java/org/example/recipeapplication/service/RecipeService.java" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/src/main/java/org/example/recipeapplication/service/RecipeService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../backend/target/classes/org/example/recipeapplication/config/SecurityConfig.class" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/target/classes/org/example/recipeapplication/config/SecurityConfig.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../backend/target/classes/org/example/recipeapplication/controller/RecipeController.class" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/target/classes/org/example/recipeapplication/controller/RecipeController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/uploads/00b8fe1d-eb09-4417-9f66-99d0c2a2fe21_1967553-v-1080x1080.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/uploads/041a1f15-8ef6-4908-bc3f-d42134a2dd42_1967563-v-1080x1309.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/uploads/0cdffd2b-10d6-4bff-80d3-a95d3a699d90_1967553-v-1080x1080.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/uploads/24377fc4-1bb8-482a-a277-c8a7488890fd_1967553-v-1080x1080.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/uploads/26ce7bfd-16ef-4f0d-b0f8-029e2687d906_1967563-v-1080x1309.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/uploads/2ffbe9a9-c9c9-4e4e-a0c5-f9a5c571a4f2_1967553-v-1080x1080.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/uploads/347e0109-3c6f-49d8-aafe-72cfc7f42fc2_1967553-v-1080x1080.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/uploads/35807365-55d4-496a-a1e7-4b98c2def404_1967553-v-1080x1080.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/uploads/39736c88-fe77-4d23-adcd-a2d9e3705228_1967553-v-1080x1080.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/uploads/40918a73-74ab-4dc7-9986-2b2433e0057d_1967563-v-1080x1309.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/uploads/59fa8d01-e99c-4590-a5fa-0920d64d266f_1967553-v-1080x1080.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/uploads/660859b5-6416-442c-b723-6d20400aaf57_images.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/uploads/6933ee31-c7a0-4d91-9e15-b5ae3fa8b208_1967553-v-1080x1080.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/uploads/6fb75e47-879a-4570-a09c-d2d3455b02ff_images.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/uploads/7644bc26-4a15-4030-b382-26cb251dd80a_1967553-v-1080x1080.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/uploads/79de4f2b-e59f-4c0e-a000-d192db076a7b_1967563-v-1080x1309.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/uploads/7f439279-04f2-4022-aac8-fdc2a82a1216_1967563-v-1080x1309.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/uploads/8f341351-ea73-44a4-bb4a-af745a353e70_1967553-v-1080x1080.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/uploads/9a7fab7e-f005-4b55-b7b4-6379a02cf792_images.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/uploads/a16ec9fc-b386-459b-b575-ace4a2a7cfec_1967553-v-1080x1080.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/uploads/ac8267af-249a-482a-ac1e-abca698870ec_1967553-v-1080x1080.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/uploads/b8de6b1e-9f2f-4aff-8bf6-b46e56ab3930_1967553-v-1080x1080.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/uploads/c9541422-76b2-4ba9-8a57-fc572807c2b8_1967563-v-1080x1309.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/uploads/e371b985-3b38-4cc7-b420-617b1b07fe85_1967563-v-1080x1309.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/uploads/e651d77d-e923-4939-8e6e-1dca00ced147_1967553-v-1080x1080.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/uploads/eb84cd43-d259-42f5-8f2b-63af4c3c22ae_1967553-v-1080x1080.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/uploads/eff1d9c6-c37f-4243-9cd7-835aca50e88f_ac416c01-4b83-4e6b-aee2-fa96288493de.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/uploads/fb92efbb-e4e5-4e7a-916f-5eb1058beb94_1967553-v-1080x1080.jpg" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/recipeapplication/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/recipeapplication/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/recipeapplication/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/recipeapplication/package-lock.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/recipeapplication/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/recipeapplication/src/App.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/recipeapplication/src/Header.js" beforeDir="false" afterPath="$PROJECT_DIR$/recipeapplication/src/Header.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/recipeapplication/src/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/recipeapplication/src/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/recipeapplication/src/RecipeDetails.js" beforeDir="false" afterPath="$PROJECT_DIR$/recipeapplication/src/RecipeDetails.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/recipeapplication/src/admin/AdminPanel.js" beforeDir="false" afterPath="$PROJECT_DIR$/recipeapplication/src/admin/AdminPanel.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/recipeapplication/src/admin/Categories.js" beforeDir="false" afterPath="$PROJECT_DIR$/recipeapplication/src/admin/Categories.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/recipeapplication/src/admin/PendingRecipesAdmin.js" beforeDir="false" afterPath="$PROJECT_DIR$/recipeapplication/src/admin/PendingRecipesAdmin.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/recipeapplication/src/admin/Users.js" beforeDir="false" afterPath="$PROJECT_DIR$/recipeapplication/src/admin/Users.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/recipeapplication/src/i18n.js" beforeDir="false" afterPath="$PROJECT_DIR$/recipeapplication/src/i18n.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -50,28 +87,34 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Jest.App.test.js.executor": "Run",
-    "Node.js.App.js.executor": "Run",
-    "Node.js.Profile.js.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "master",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "E:/Intellij projects/java/Zaawansowane Aplikacje Internetowe/RecipeApplication/backend",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs.jest.jest_package": "E:/Intellij projects/java/Zaawansowane Aplikacje Internetowe/RecipeApplication/frontend/recipeapplication/node_modules/react-scripts",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
-    "ts.external.directory.path": "C:\\Program Files\\JetBrains\\IntelliJ IDEA 2024.3.6\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Jest.App.test.js.executor&quot;: &quot;Run&quot;,
+    &quot;Node.js.App.js.executor&quot;: &quot;Run&quot;,
+    &quot;Node.js.Profile.js.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;E:/Intellij projects/java/Zaawansowane Aplikacje Internetowe/RecipeApplication/backend&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs.jest.jest_package&quot;: &quot;E:/Intellij projects/java/Zaawansowane Aplikacje Internetowe/RecipeApplication/frontend/recipeapplication/node_modules/react-scripts&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2024.3.6\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="E:\Intellij projects\java\Zaawansowane Aplikacje Internetowe\RecipeApplication\frontend\recipeapplication\public" />
+      <recent name="E:\Intellij projects\java\Zaawansowane Aplikacje Internetowe\RecipeApplication\frontend\recipeapplication\src" />
+    </key>
+  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -92,6 +135,10 @@
       <workItem from="1749503399801" duration="52459000" />
       <workItem from="1749994042072" duration="18420000" />
       <workItem from="1750363300694" duration="4303000" />
+      <workItem from="1750418841822" duration="91451000" />
+      <workItem from="1750793637884" duration="446000" />
+      <workItem from="1750871019440" duration="4560000" />
+      <workItem from="1750918212375" duration="5788000" />
     </task>
     <task id="LOCAL-00001" summary="Added package-json">
       <option name="closed" value="true" />
@@ -157,7 +204,47 @@
       <option name="project" value="LOCAL" />
       <updated>1750031528116</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="Created admin panel">
+      <option name="closed" value="true" />
+      <created>1750430425784</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1750430425784</updated>
+    </task>
+    <task id="LOCAL-00010" summary="Modified Recipe entity and some changes on frontend">
+      <option name="closed" value="true" />
+      <created>1750452350379</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1750452350379</updated>
+    </task>
+    <task id="LOCAL-00011" summary="Added recipes modifying">
+      <option name="closed" value="true" />
+      <created>1750663722511</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1750663722511</updated>
+    </task>
+    <task id="LOCAL-00012" summary="Added recipes comments and banning logic">
+      <option name="closed" value="true" />
+      <created>1750731072551</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1750731072551</updated>
+    </task>
+    <task id="LOCAL-00013" summary="Fixed bugs">
+      <option name="closed" value="true" />
+      <created>1750745758017</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1750745758017</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -172,6 +259,11 @@
     <MESSAGE value="Added posting rates to recipe" />
     <MESSAGE value="Added add recipes page" />
     <MESSAGE value="Modified the way images are added to recipe" />
-    <option name="LAST_COMMIT_MESSAGE" value="Modified the way images are added to recipe" />
+    <MESSAGE value="Created admin panel" />
+    <MESSAGE value="Modified Recipe entity and some changes on frontend" />
+    <MESSAGE value="Added recipes modifying" />
+    <MESSAGE value="Added recipes comments and banning logic" />
+    <MESSAGE value="Fixed bugs" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed bugs" />
   </component>
 </project>
